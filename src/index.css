@@ -1,0 +1,58 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+#root{
+  width: 100vw;
+  height: 100vh;
+}
+@font-face {
+  font-family: "Amazon-Ember-Regular";
+  src: url(./assets/fonts/AmazonEmberDisplay_Rg.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Amazon-Ember-Bold";
+  src: url(./assets/fonts/AmazonEmberDisplay_Bd.ttf) format("truetype");  
+  font-weight: bold;
+}
+[data-font-ember-regular] {
+  font-family: "Amazon-Ember-Regular", "Helvetica Neue", Helvetica, Arial,
+    sans-serif !important;
+}
+[data-font-ember-bold] {
+  font-family: "Amazon-Ember-Bold", "Helvetica Neue", Helvetica, Arial,
+    sans-serif !important;
+}
+[data-no-top-margin]{
+  margin-top: 0;
+}
+p,
+label,
+div,
+a,
+button,
+input,
+textarea,
+select,
+li,
+td,
+option {
+  font-family: "Amazon-Ember-Regular", "Open Sans", "Helvetica Neue", Roboto,
+    Arial, sans-serif !important;
+    color: #000000;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+th {
+  font-family: "Amazon-Ember-Bold", "Open Sans", "Helvetica Neue", Roboto, Arial,
+    sans-serif !important;
+    color: #000000;
+}
+

@@ -1,0 +1,71 @@
+[data-summary-container] {
+  padding: 16px;
+  border: 1px solid #fee5c5;
+  background-color: #fff6ea;
+  border-radius: 16px;
+}
+[data-summary-container] p {
+  margin: 0;
+  font-size: 15px;
+  text-align: justify;
+}
+[data-summary-container] [data-summary-title] {
+  margin-bottom: 16px;
+  font-weight: bold;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-summary-container] [data-summary-title] span {
+  margin-right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-summary-panel-description-container] p {
+  position: relative;
+  max-height: 80px;
+}
+[data-summary-panel-description-container][data-summary-show-full-height] p {
+  max-height: max-content;
+}
+[data-summary-panel-description-container][data-summary-show-full-height]
+  p
+  span[data-summary-panel-show-more] {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: right;
+}
+[data-summary-panel-description-container] {
+  overflow: hidden;
+}
+[data-summary-panel-description-container][data-summary-show-full-height] p {
+  max-height: max-content;
+}
+[data-summary-panel-description-container][data-summary-show-full-height]
+  p
+  span[data-summary-panel-show-more] {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: right;
+}
+[data-summary-panel-description-container] {
+  overflow: hidden;
+}
+[data-summary-panel-show-more] {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 14px;
+  text-align: right;
+  z-index: 1;
+  background-color: #fff6ea;
+  cursor: pointer;
+  color: #006ce0;
+}
+[data-summary-panel-show-more]:hover {
+  text-decoration: underline;
+}

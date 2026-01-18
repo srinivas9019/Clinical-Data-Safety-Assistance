@@ -1,0 +1,19 @@
+[data-card-panel-container] {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+[data-card-panel-container] {
+  color: #d91515;
+}
+[data-top-card-panel-content] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+[data-top-card-panel-content] p {
+  margin: 0;
+  font-size: 16px;
+}
+[data-dashboard-card-icons] {
+  width: 48px;
+  height: 48px;
+}
