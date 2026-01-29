@@ -1,12 +1,12 @@
-import React, { useContext, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import React, {  useState } from "react";
+
 import AppLayout from "@cloudscape-design/components/app-layout";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
-import SideNavigation from "@cloudscape-design/components/side-navigation";
-import type { SideNavigationProps } from "@cloudscape-design/components/side-navigation";
+
 
 import awsLogo from "../assets/icons/aws-logo.svg";
 import MainChatPage from "../pages/MainChatPage";
+import AppLeftNAvPanel from "./AppLeftNavPanel";
 
 const MainLayout: React.FC = () => {
   const [navigationOpen, setNavigationOpen] = useState(true);
@@ -31,12 +31,7 @@ const MainLayout: React.FC = () => {
           ]}
         />
         <AppLayout
-          navigation={
-            <SideNavigation
-              activeHref={location.pathname}
-              header={{ text: "Menu", href: "/" }}
-            />
-          }
+          navigation={<AppLeftNAvPanel />}
           navigationOpen={navigationOpen}
           onNavigationChange={({ detail }) => {
             setNavigationOpen(detail.open);

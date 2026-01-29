@@ -7,6 +7,7 @@ body,html{
   overflow: hidden;
   height: 100vh;
   width: 100vw;
+  overflow-y: auto;
 }
 [data-header-with-btn]{
   display: flex;
@@ -26,7 +27,118 @@ body,html{
   flex: 1;
 }
 [data-chat-msg-panel]{
-  border: 1px solid #000;
-  border-radius: 16px;
-  padding: 4px 10px;
+  font-size: 17px;
+  border-radius: 8px;
+  padding: 16px 16px;
+  background-color: #F3F5F6;
+  min-width: 50px;
+  max-width: 80%;
+  display: flex;
+  align-items: flex-start;
+}
+[data-adjust-height-for-user-text]{
+  padding-top: 2px;
+}
+[data-chat-msg-incoming=true]{
+  display: flex;
+  justify-content: flex-start;
+  
+}
+[data-chat-msg-incoming=false] svg,
+[data-chat-msg-incoming=true] svg{
+  color: blue;
+}
+[data-chat-msg-incoming=false]{
+  display: flex;
+  justify-content: flex-end;
+}
+[data-chat-msg-panel-text-panel]{
+  padding-left: 16px;
+  
+}
+
+[data-anomaly-detected-badge] {
+  font-size: 14px !important;
+  background-color: #fceae7 !important;
+  color: #d42b11 !important;
+  border: 1px solid #f6d0ca !important;
+  font-size: 16px !important;
+}
+[data-card-panel-status=true] [data-anomaly-detected-badge] {
+  font-size: 14px !important;
+  background-color: #e9f9ef !important;
+  color: #00802f !important;
+  border: 1px solid #ade9c3 !important;
+  font-size: 16px !important;
+}
+[data-recommend-panel-description-item]{
+  padding-bottom: 4px;
+}
+[data-recommend-panel-list-title],
+[data-recommend-panel-list-description]{
+  font-size: 15px;
+}
+[data-recommendation-title]{
+  font-size: 20px;
+}
+
+
+/* ---- card panel--- */
+
+[data-card-panel-container] {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+[data-card-panel-container] {
+  color: #d91515;
+}
+[data-top-card-panel-content] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+[data-top-card-panel-content] p {
+  margin: 0;
+  font-size: 16px;
+}
+[data-dashboard-card-icons] {
+  width: 48px;
+  height: 48px;
+}
+
+/* ------------- popover---------------- */
+
+[data-rca-recommendation-list-item-reason] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+[data-rca-recommendation-list-item-reason] img {
+  margin-right: 4px;
+  width: 14px;
+}
+
+[data-card-panel-title-with-info]{
+  display: flex;
+  align-items: center;
+}
+
+[data-chat-panel-ai-reply-header]{
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+[data-chat-panel-ai-reply-text]{
+  margin-left: 8px;
+  font-size: 20px;
+  margin-top: 2px;
+}
+[data-chat-panel-ai-reply-header] svg{
+  color: blue;
+}
+[data-card-panel-main-text-value]{
+  color: #D91515;
+}
+[data-card-panel-status=true] [data-card-panel-main-text-value]{
+  color: #00802f;
 }

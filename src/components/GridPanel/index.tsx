@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Header } from "@cloudscape-design/components";
+import { Container, Grid, Header } from "@cloudscape-design/components";
 const ChatGridPanel = (props: any) => {
   let { GridItems } = props;
   console.log(GridItems);
@@ -12,6 +12,7 @@ const ChatGridPanel = (props: any) => {
     <>
       <Grid gridDefinition={gridDefinitionVal}>
         {GridItems?.map((data: any, index: number) => {
+          console.log(data);
           return (
             <Container
               header={

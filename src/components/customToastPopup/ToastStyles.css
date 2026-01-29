@@ -1,0 +1,57 @@
+[data-global-toast-container] {
+  position: fixed;
+  right: 20px;
+  top: 10vh;
+
+  z-index: 200000;
+
+  min-width: 20vw;
+}
+[data-toast-popup-main] {
+  position: relative;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+[data-toast-popup-text-green] {
+  color: #00802f;
+}
+[data-toast-popup-text-error] {
+  color: #d42b11;
+}
+[data-toast-popup-error] p,
+[data-toast-popup-green] p {
+  font-size: 18px;
+  margin: 0;
+}
+[data-toast-popup-error] p {
+  color: #d42b11;
+}
+[data-toast-popup-green] p {
+  color: #00802f;
+}
+
+[data-toast-popup-title] {
+  margin-bottom: 12px !important;
+}
+[data-toast-popup-close] {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 1;
+  font-size: 22px;
+  cursor: pointer;
+}
+[data-toast-popup-error]{
+  font-size: 14px !important;
+  background-color: #fceae7 !important;
+  color: #d42b11 !important;
+  border: 1px solid #f6d0ca !important;
+}
+[data-toast-popup-green] {
+  font-size: 14px !important;
+  background-color: #e9f9ef !important;
+  color: #00802f !important;
+  border: 1px solid #ade9c3 !important;
+}

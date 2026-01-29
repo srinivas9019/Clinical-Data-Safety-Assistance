@@ -1,0 +1,56 @@
+[data-app-left-panel-search-box] {
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  background-color: #e6f2ff;
+}
+[data-app-nav-left-panel-main] {
+  padding: 20px;
+  padding-top: 0;
+}
+[data-add-new-chat] {
+  width: 100%;
+  text-align: center !important;
+}
+[data-app-left-nav-panel-title-container] {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 10px;
+}
+[data-history-lest-container] {
+  max-height: 50vh;
+  overflow: hidden;
+  overflow-y: auto;
+  padding-left: 12px;
+}
+[data-history-list-item] {
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid #EBEBF0;
+  cursor: pointer;
+  padding: 10px 0 10px 4px ;
+  text-overflow: ellipsis;
+}
+[data-history-list-item] span{
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+[data-history-list-item]:not([data-history-list-item-disabled]):hover {
+  background-color: #e6f2ff;
+  border-radius: 4x;
+  font-family:
+    "Amazon-Ember-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+[data-history-title]{
+    font-size: 17px;
+    padding-left: 4px;
+}
+[data-history-list-item-disabled]{
+    cursor: auto;
+    user-select: none;
+
+}
+/* data-app-left-nav-history-panel data-history-panel-is-open */

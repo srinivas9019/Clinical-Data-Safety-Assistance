@@ -1,11 +1,13 @@
 import "./App.css";
 import MainLayout from "./components/MainLayout";
-import MainChatPage from "./pages/MainChatPage";
+import { ToastProvider } from "./Context/AppGlobalToast";
 
 function App() {
   return (
     <>
-      <MainLayout />
+      <ToastProvider>
+        <MainLayout />
+      </ToastProvider>
     </>
   );
 }

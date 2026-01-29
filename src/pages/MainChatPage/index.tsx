@@ -1,21 +1,28 @@
 import {
-  Badge,
+  
   Box,
   Button,
-  ButtonGroup,
+  
   Container,
-  Grid,
+  
   Header,
+  LiveRegion,
   PromptInput,
   SpaceBetween,
-  StatusIndicator,
+  
 } from "@cloudscape-design/components";
+import LoadingBar from "@cloudscape-design/chat-components/loading-bar";
 
 import getChatDetails from "./useMainChatPage";
-import { getChatMsgBasedOnType } from "./chatComponents";
+
 const MainChatPage = () => {
-  const { chatDetails, enteredChat, setEnteredChat, onUserChatEnter } =
-    getChatDetails();
+  const {
+    chatDetails,
+    enteredChat,
+    setEnteredChat,
+    onUserChatEnter,
+    waitingForResponse,
+  } = getChatDetails();
 
   return (
     <>
@@ -45,14 +52,30 @@ const MainChatPage = () => {
               actionButtonIconName="send"
               ariaLabel="Prompt input with action button"
               placeholder="Please ask a question"
+              disabled={waitingForResponse}
             />
           }
         >
-          {chatDetails.map((chatDetail: any, index: number) => (
-            <div key={index} data-chat-bubble-wrapper>
-              {getChatMsgBasedOnType(chatDetail)}
-            </div>
-          ))}
+          <SpaceBetween size="l">
+            {chatDetails.map((chatDetail: any, index: number) => (
+              <div key={index} data-chat-bubble-wrapper>
+                {chatDetail}
+              </div>
+            ))}
+            {waitingForResponse ? (
+              <LiveRegion>
+                <Box
+                  margin={{ bottom: "xs", left: "l" }}
+                  color="text-body-secondary"
+                >
+                  Generating a response
+                </Box>
+                <LoadingBar variant="gen-ai" />
+              </LiveRegion>
+            ) : (
+              <></>
+            )}
+          </SpaceBetween>
         </Container>
       </div>
     </>
