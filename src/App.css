@@ -1,5 +1,5 @@
 *{
-  box-model: border-box;
+  box-sizing: border-box;
 }
 body,html{
   margin: 0;
@@ -14,6 +14,7 @@ body,html{
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  margin-top: 20px;
 }
 [data-header-with-btn] [data-font-ember-bold]{
   white-space: nowrap !important;
@@ -76,7 +77,7 @@ body,html{
 }
 [data-recommend-panel-list-title],
 [data-recommend-panel-list-description]{
-  font-size: 15px;
+  font-size: 16px;
 }
 [data-recommendation-title]{
   font-size: 20px;
@@ -115,7 +116,7 @@ body,html{
 }
 [data-rca-recommendation-list-item-reason] img {
   margin-right: 4px;
-  width: 14px;
+  width: 18px;
 }
 
 [data-card-panel-title-with-info]{
@@ -138,7 +139,22 @@ body,html{
 }
 [data-card-panel-main-text-value]{
   color: #D91515;
+  /* font-size: 30px; */
 }
 [data-card-panel-status=true] [data-card-panel-main-text-value]{
   color: #00802f;
+}
+[data-card-panel-status-wrapper]{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+[data-tab-title]{
+  font-size: 20px;
+}
+[data-prompt-input-box]{
+  position: sticky;
+}
+[data-id="data-chat-panel-summary"] [data-summary-panel-description-container] p{
+  font-size: 17px;
 }

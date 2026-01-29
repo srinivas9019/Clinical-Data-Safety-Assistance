@@ -1,6 +1,6 @@
-
 import Box from "@cloudscape-design/components/box";
 import CartesianChart from "@cloudscape-design/chart-components/cartesian-chart";
+import Highcharts from "highcharts";
 
 const ScatteredGraph = ({
   data,
@@ -13,15 +13,17 @@ const ScatteredGraph = ({
   horizontalBars?: boolean;
   otherProps?: any;
 }) => {
+  console.log(JSON.stringify(data));
   return (
     <>
       <CartesianChart
-        stacking="Scatter chart"
+        highcharts={Highcharts}
+        ariaLabel="Scatter chart"
         chartHeight={height}
-        series={data || []}
+        series={data}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>Scattered-Chart !!, No data available.</b>
+            <b>Scatter-Chart !!, No data available.</b>
           </Box>
         }
         {...otherProps}

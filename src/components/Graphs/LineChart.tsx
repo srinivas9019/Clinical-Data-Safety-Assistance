@@ -13,12 +13,10 @@ export default ({
   otherProps?: any;
 }) => {
   return (
-    <LineChart
-      
+    <LineChart      
       height={height}
       series={data || []}
       hideFilter
-      
       hideLegend={!showLegend}
       {...otherProps}
       empty={

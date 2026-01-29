@@ -1,8 +1,7 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 
 import AppLayout from "@cloudscape-design/components/app-layout";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
-
 
 import awsLogo from "../assets/icons/aws-logo.svg";
 import MainChatPage from "../pages/MainChatPage";
@@ -36,10 +35,14 @@ const MainLayout: React.FC = () => {
           onNavigationChange={({ detail }) => {
             setNavigationOpen(detail.open);
           }}
+          disableContentPaddings
           toolsHide={true}
           content={
             <div
-              style={{ position: "relative", height: "100%", padding: "0 6px" }}
+              style={{
+                position: "relative",               
+                padding: "0 20px",
+              }}
             >
               <MainChatPage />
             </div>

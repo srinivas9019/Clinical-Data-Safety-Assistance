@@ -1,15 +1,11 @@
 import {
-  
   Box,
   Button,
-  
   Container,
-  
   Header,
   LiveRegion,
   PromptInput,
   SpaceBetween,
-  
 } from "@cloudscape-design/components";
 import LoadingBar from "@cloudscape-design/chat-components/loading-bar";
 
@@ -43,6 +39,7 @@ const MainChatPage = () => {
           fitHeight
           footer={
             <PromptInput
+              data-prompt-input-box
               onChange={({ detail }) => setEnteredChat(detail.value)}
               value={enteredChat}
               onAction={() => {
@@ -75,6 +72,19 @@ const MainChatPage = () => {
             ) : (
               <></>
             )}
+            {/* <PromptInput
+              data-prompt-input-box
+              onChange={({ detail }) => setEnteredChat(detail.value)}
+              value={enteredChat}
+              onAction={() => {
+                enteredChat?.length && onUserChatEnter();
+              }}
+              actionButtonAriaLabel="Send message"
+              actionButtonIconName="send"
+              ariaLabel="Prompt input with action button"
+              placeholder="Please ask a question"
+              disabled={waitingForResponse}
+            /> */}
           </SpaceBetween>
         </Container>
       </div>

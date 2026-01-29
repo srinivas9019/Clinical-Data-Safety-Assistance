@@ -7,15 +7,17 @@ export const SummaryPanel = ({
   description,
   expandShowMore = false,
   hideHeader = false,
+  dataId=""
 }: {
   title?: any;
   description: any;
   expandShowMore?: boolean;
   hideHeader?: boolean;
+  dataId?:any
 }) => {
   const refElement = useRef<HTMLDivElement | null>(null);
   const [showMore, setShowMore] = useState<boolean>(false);
-  const [expandPanel, setExpandPanel] = useState<boolean>(false);
+  const [expandPanel, setExpandPanel] = useState<boolean>(expandShowMore);
 
   useEffect(() => {
     setExpandPanel(expandShowMore);
@@ -39,7 +41,7 @@ export const SummaryPanel = ({
   };
 
   return (
-    <Box data-summary-container>
+    <div data-summary-container data-id={dataId}>
       {hideHeader ? (
         <></>
       ) : (
@@ -72,6 +74,6 @@ export const SummaryPanel = ({
           )}
         </p>
       </Box>
-    </Box>
+    </div>
   );
 };
