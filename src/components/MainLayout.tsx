@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-
 import AppLayout from "@cloudscape-design/components/app-layout";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
-
 import awsLogo from "../assets/icons/aws-logo.svg";
 import MainChatPage from "../pages/MainChatPage";
 import AppLeftNAvPanel from "./AppLeftNavPanel";
@@ -40,8 +38,9 @@ const MainLayout: React.FC = () => {
           content={
             <div
               style={{
-                position: "relative",               
+                position: "relative",
                 padding: "0 20px",
+                height: "100%",
               }}
             >
               <MainChatPage />

@@ -7,13 +7,176 @@ import {
 } from "@cloudscape-design/components";
 import "./SplitPanel.css";
 import { useEffect, useState } from "react";
+import api from "../api";
+import { appUrls } from "../api/config";
+import {
+  generateSessionId,
+  getNewChatSessionId,
+  PanelLoader,
+} from "../utility";
+import { useGlobalContext } from "../Context/AppGlobalData";
+import {
+  getChatTextMsgPanel,
+  transformResponseToChat,
+} from "../pages/MainChatPage/chatComponents";
+import { ChatMsgIOTypes } from "../App-Interfaces/ChatRelatedInterfaces";
+import { useAppToast } from "../Context/AppGlobalToast";
+import axios from "axios";
 const AppLeftNAvPanel = () => {
   const [value, setValue] = useState("");
   const [historyList, setHistoryList] = useState([]);
+  const [historyChatLoading, setHistoryChatLoading] = useState(false);
+  const { setAppGlobalData, appGlobalData } = useGlobalContext();
   const [historyListOpen, setHistoryListOpen] = useState(true);
-  useEffect(()=>{
-    setHistoryList([]);
-  },[])
+
+  const { showPageLoader, addNewToast } = useAppToast();
+
+  useEffect(() => {
+    startNewChat();
+  }, []);
+
+  const getChatHistory = async () => {
+    setHistoryChatLoading(true);
+    api.get(appUrls.ALL_CHAT_HISTORY).then((res) => {
+      setHistoryList(res?.data.sessions || []);
+      setHistoryChatLoading(false);
+
+      if (!res?.data.sessions?.length) {
+        startNewChat();
+        return;
+      }
+
+      if (appGlobalData?.chatSessionDetails?.currChatId === "") {
+        setAppGlobalData((prevData: any) => ({
+          ...prevData,
+          chatSessionDetails: {
+            ...prevData?.chatSessionDetails,
+            currChatId: res?.data.sessions?.[0]?.session_id || "",
+            currChatSessionId: res?.data.sessions?.[0]?.session_id
+              ? generateSessionId()
+              : "",
+          },
+        }));
+      }
+    });
+  };
+
+  const getChatFromHistory = (chatItem: any) => {
+    setAppGlobalData((prevData: any) => ({
+      ...prevData,
+      currentChatDetails: [],
+    }));
+
+    api
+      .get(
+        appUrls.SINGLE_CHAT +
+          chatItem?.session_id +
+          "?user_id=" +
+          appGlobalData?.userDetails?.userId,
+      )
+      ?.then((res) => {
+        if (!res.data?.messages?.length) {
+          addNewToast({
+            type: "ERROR",
+            content: "No History Found for this Chat!!",
+          });
+          return;
+        }
+
+        res.data?.messages?.map((msg: any) => {
+          if (msg.role === "user") {
+            setAppGlobalData((prevData: any) => ({
+              ...prevData,
+              currentChatDetails: [
+                ...prevData.currentChatDetails,
+                getChatTextMsgPanel({
+                  type: ChatMsgIOTypes.OUTGOING,
+                  message: msg.content || "",
+                }),
+              ],
+            }));
+          } else if (msg.role === "assistant") {
+            setAppGlobalData((prevData: any) => ({
+              ...prevData,
+              currentChatDetails: [
+                ...prevData.currentChatDetails,
+                transformResponseToChat(msg.content || ""),
+              ],
+            }));
+          }
+        });
+      })
+      .catch(() => {});
+  };
+
+  const startNewChat = () => {
+    showPageLoader({
+      status: true,
+      title: "Please Wait, Loading New Session !!",
+    });
+    api
+      .post(appUrls.NEW_CHAT_SESSION, {
+        user_id: "CDA_Test_user",
+        session_id: "chat-" + getNewChatSessionId(),
+        agent_id: "agent-chat",
+        title: "Mix the sample for 12 cycles and incubate it for 1",
+      })
+      .then((res) => {
+        setAppGlobalData((prevData: any) => ({
+          ...prevData,
+          userDetails: { userId: res?.data?.session?.user_id },
+          chatSessionDetails: {
+            currChatId: res?.data?.session?.session_id,
+            currChatSessionId: generateSessionId(),
+          },
+          currentChatDetails: [
+            getChatTextMsgPanel({
+              type: ChatMsgIOTypes.INCOMING,
+              message:
+                "Hello! I am your Clinical Data Safety Assistant. How can I assist you today?",
+            }),
+          ],
+        }));
+        setTimeout(() => {
+          getChatHistory();
+        }, 250);
+      })
+      .finally(() => {
+        showPageLoader({ status: false });
+      });
+  };
+
+  const deleteChatFromHistory = (chatInfo: any) => {
+    setHistoryChatLoading(true);
+    axios
+      .delete(
+        appUrls.DELETE_CHAT_SESSION +
+          chatInfo?.session_id +
+          "?user_id=" +
+          chatInfo?.user_id,
+      )
+      .then(() => {
+        if (
+          chatInfo?.session_id === appGlobalData?.chatSessionDetails?.currChatId
+        ) {
+          setAppGlobalData((prevData: any) => ({
+            ...prevData,
+            chatSessionDetails: {
+              ...prevData?.chatSessionDetails,
+              currChatId: "",
+              currChatSessionId: generateSessionId(),
+            },
+          }));
+        }
+        setTimeout(() => {
+          getChatHistory();
+        }, 250);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <>
       <SideNavigation
@@ -31,6 +194,9 @@ const AppLeftNAvPanel = () => {
                 iconAlign="left"
                 variant="primary"
                 iconName="add-plus"
+                onClick={() => {
+                  startNewChat();
+                }}
               >
                 New Chat
               </Button>
@@ -43,6 +209,7 @@ const AppLeftNAvPanel = () => {
             </SpaceBetween>
           </div>
           <div data-app-left-nav-history-panel>
+            {historyChatLoading ? <PanelLoader /> : <></>}
             <div
               data-app-left-nav-panel-title-container
               onClick={() => {
@@ -62,15 +229,49 @@ const AppLeftNAvPanel = () => {
             </div>
             {historyListOpen ? (
               <div data-history-lest-container>
-                {historyList?.length ? historyList?.map((item: any) => {
-                  return (
-                    <div data-history-list-item>
-                      <span>{item}</span>
-                    </div>
-                  );
-                }) : <div data-history-list-item data-history-list-item-disabled>
-                      <span>- No History Available -</span>
-                    </div>}
+                {historyList?.length ? (
+                  historyList?.map((item: any, index: number) => {
+                    return (
+                      <div
+                        data-history-list-item
+                        key={index}
+                        data-history-list-item-active={
+                          appGlobalData?.chatSessionDetails?.currChatId ===
+                          item?.session_id
+                            ? true
+                            : false
+                        }
+                        onClick={() => {
+                          getChatFromHistory(item);
+                          // setAppGlobalData((prevData: any) => ({
+                          //   ...prevData,
+                          //   chatSessionDetails: {
+                          //     ...prevData?.chatSessionDetails,
+                          //     currChatId: item?.session_id,
+                          //     currChatSessionId: generateSessionId(),
+                          //   },
+                          // }));
+                        }}
+                      >
+                        <span
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            deleteChatFromHistory(item);
+                          }}
+                          data-chat-remove-icon
+                          title="Delete This Chat"
+                        >
+                          <Icon name="remove" />
+                        </span>
+                        <span title={item?.title}>{item?.title}</span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div data-history-list-item data-history-list-item-disabled>
+                    <span>- No History Available -</span>
+                  </div>
+                )}
               </div>
             ) : (
               <></>

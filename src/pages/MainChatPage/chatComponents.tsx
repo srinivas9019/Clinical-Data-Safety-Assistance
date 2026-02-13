@@ -30,33 +30,44 @@ export const transformResponseToChat = (apiResponse: any) => {
   let AllCharts: any = [];
   let domainTableData: any = {};
 
+  let crossQuestionResponse = "";
+  if (apiResponse?.cross_question) {
+    crossQuestionResponse = apiResponse?.cross_question_response;
+  }
+
   Object.keys(apiResponse?.domain_results || {})?.map((domain) => {
     let ObjDomain = apiResponse?.domain_results?.[domain];
     if (!Object.keys(ObjDomain || {})?.length) return;
 
-    allKeyMetrics = {
-      ...allKeyMetrics,
-      ...Object.fromEntries(
-        Object.entries(ObjDomain?.analysis_results?.key_metrics).slice(0, 2),
-      ),
-    };
+    Object.entries(ObjDomain?.analysis_results?.key_metrics || {})?.length &&
+      (allKeyMetrics = {
+        ...allKeyMetrics,
+        ...Object.fromEntries(
+          Object.entries(ObjDomain?.analysis_results?.key_metrics).slice(0, 2),
+        ),
+      });
 
-    allRecommendations = [
-      ...allRecommendations,
-      ...ObjDomain?.recommendations.slice(0, 2),
-    ];
-    QAnswers = [
-      ...QAnswers,
-      ...ObjDomain?.analysis_results?.questions_answered?.slice(0, 2),
-    ];
+    ObjDomain?.recommendations?.length &&
+      (allRecommendations = [
+        ...allRecommendations,
+        ...ObjDomain?.recommendations?.slice(0, 2),
+      ]);
+    ObjDomain?.analysis_results?.questions_answered?.length &&
+      (QAnswers = [
+        ...QAnswers,
+        ...ObjDomain?.analysis_results?.questions_answered?.slice(0, 2),
+      ]);
 
-    domainTableData[domain] = formatTableData(
-      ObjDomain?.visualizations?.data_table,
-    );
+    
+    Object.keys(ObjDomain?.visualizations?.data_table || {})?.length &&
+      (domainTableData[domain] = formatTableData(
+        ObjDomain?.visualizations?.data_table,
+      ));
 
-    ObjDomain?.visualizations?.primary_chart &&
+    Object.keys(ObjDomain?.visualizations?.primary_chart || {})?.length &&
       AllCharts.push(ObjDomain?.visualizations?.primary_chart);
-    ObjDomain?.visualizations?.secondary_chart &&
+
+    Object.keys(ObjDomain?.visualizations?.secondary_chart || {})?.length &&
       AllCharts.push(ObjDomain?.visualizations?.secondary_chart);
   });
 
@@ -69,115 +80,139 @@ export const transformResponseToChat = (apiResponse: any) => {
             Result
           </p>
         </div>
-        {apiResponse?.supervisor_agent_summary && (
-          <SummaryPanel expandShowMore={true} dataId={"data-chat-panel-summary"} description={apiResponse?.supervisor_agent_summary} />
+        {crossQuestionResponse?.length ? (
+          <Container>
+            <p>{crossQuestionResponse}</p>
+          </Container>
+        ) : (
+          <></>
         )}
-        <Box>{getCardPanel(allKeyMetrics)}</Box>
-        <Tabs
-          tabs={[
-            {
-              label: (
-                <span data-tab-title data-font-ember-bold>
-                  Recommendation
-                </span>
-              ),
-              id: "first",
-              content: (
-                <>
-                  <SpaceBetween size="l">
-                    {transformRecommendationPanel(allRecommendations)}
-                  </SpaceBetween>
-                </>
-              ),
-            },
-            {
-              label: (
-                <span data-tab-title data-font-ember-bold>
-                  Questions Answered
-                </span>
-              ),
-              id: "second",
-              content: (
-                <>
-                  <SpaceBetween size="l">
-                    {getQuestionAndAnswers(QAnswers)}
-                  </SpaceBetween>
-                </>
-              ),
-            },
-          ]}
-          variant="container"
-        />
 
-        <Tabs
-          tabs={[
-            {
-              label: (
-                <span data-tab-title data-font-ember-bold>
-                  Overview
-                </span>
-              ),
-              id: "first",
-              content: (
-                <>
-                  <SpaceBetween size="l">
-                    {Object.values(domainTableData).length ? (
-                      Object.values(domainTableData)?.map(
-                        (item: any, index: any) => {
-                          return (
-                            <Container
-                              key={index}
-                              header={
-                                <Header
-                                  data-anomaly-detected-header
-                                  variant="h2"
+        {apiResponse?.supervisor_agent_summary && (
+          <SummaryPanel
+            expandShowMore={true}
+            dataId={"data-chat-panel-summary"}
+            description={apiResponse?.supervisor_agent_summary}
+          />
+        )}
+        {Object.keys(allKeyMetrics || {}) ? (
+          <Box>{getCardPanel(allKeyMetrics)}</Box>
+        ) : (
+          <></>
+        )}
+
+        {!crossQuestionResponse?.length ? (
+          <>
+            <Tabs
+              tabs={[
+                {
+                  label: (
+                    <span data-tab-title data-font-ember-bold>
+                      Recommendation
+                    </span>
+                  ),
+                  id: "first",
+                  content: (
+                    <>
+                      <SpaceBetween size="l">
+                        {transformRecommendationPanel(allRecommendations)}
+                      </SpaceBetween>
+                    </>
+                  ),
+                },
+                {
+                  label: (
+                    <span data-tab-title data-font-ember-bold>
+                      Questions Answered
+                    </span>
+                  ),
+                  id: "second",
+                  content: (
+                    <>
+                      <SpaceBetween size="l">
+                        {getQuestionAndAnswers(QAnswers)}
+                      </SpaceBetween>
+                    </>
+                  ),
+                },
+              ]}
+              variant="container"
+            />
+
+            <Tabs
+              tabs={[
+                {
+                  label: (
+                    <span data-tab-title data-font-ember-bold>
+                      Overview
+                    </span>
+                  ),
+                  id: "first",
+                  content: (
+                    <>
+                      <SpaceBetween size="l">
+                        {Object.values(domainTableData).length ? (
+                          Object.values(domainTableData)?.map(
+                            (item: any, index: any) => {
+                              return (
+                                <Container
+                                  key={index}
+                                  header={
+                                    <Header
+                                      data-anomaly-detected-header
+                                      variant="h2"
+                                    >
+                                      {item.title || ""}
+                                    </Header>
+                                  }
                                 >
-                                  {item.title || ""}
-                                </Header>
-                              }
-                            >
-                              <AppTable
-                                columns={item?.tableHeaders}
-                                data={item?.tableContent || []}
-                                otherProps={{ pageSize: 10 }}
-                              />
-                            </Container>
-                          );
-                        },
-                      )
-                    ) : (
-                      <>
-                        <p>No Overview Available!!</p>
-                      </>
-                    )}
-                  </SpaceBetween>
-                </>
-              ),
-            },
-            {
-              label: (
-                <span data-tab-title data-font-ember-bold>
-                  Visualization
-                </span>
-              ),
-              id: "second",
-              content: (
-                <>
-                  <SpaceBetween size="l">
-                    {AllCharts?.length ? (
-                      AllCharts?.map((chart: any) => {
-                        return getChartWithType(chart);
-                      })
-                    ) : (
-                      <p>No Charts Available!!</p>
-                    )}
-                  </SpaceBetween>
-                </>
-              ),
-            },
-          ]}
-          variant="container"
-        />
+                                  <AppTable
+                                    columns={item?.tableHeaders}
+                                    data={item?.tableContent || []}
+                                    otherProps={{ pageSize: 10 }}
+                                  />
+                                </Container>
+                              );
+                            },
+                          )
+                        ) : (
+                          <>
+                            <p>No Overview Available!!</p>
+                          </>
+                        )}
+                      </SpaceBetween>
+                    </>
+                  ),
+                },
+                {
+                  label: (
+                    <span data-tab-title data-font-ember-bold>
+                      Visualization
+                    </span>
+                  ),
+                  id: "second",
+                  content: (
+                    <>
+                      <SpaceBetween size="l">
+                        {AllCharts?.length ? (
+                          AllCharts?.map((chart: any) => {
+                            console.log(AllCharts);
+                            return getChartWithType(chart);
+                          })
+                        ) : (
+                          <p>No Charts Available!!</p>
+                        )}
+                      </SpaceBetween>
+                    </>
+                  ),
+                },
+              ]}
+              variant="container"
+            />
+          </>
+        ) : (
+          <></>
+        )}
       </SpaceBetween>
     </>
   );
@@ -186,6 +221,9 @@ export const transformResponseToChat = (apiResponse: any) => {
 const formatTableData = (data: any) => {
   // format table header;
   let newTableData: any = {};
+
+  if (!Object.keys(data || {})?.length) return newTableData;
+
   newTableData.title = data.title || "";
   newTableData.tableHeaders = [];
 
@@ -220,80 +258,88 @@ const formatTableData = (data: any) => {
 const getCardPanel = (data: any) => {
   return (
     <>
-      <h2>Key Metrics</h2>
-      <Grid
-        gridDefinition={Array(Object.keys(data || {})?.length || 10).fill({
-          colspan: 3,
-        })}
-      >
-        {Object.keys(data || {})?.map((itemKey: any, index: number) => {
-          let cardStatusGreen =
-            data[itemKey]?.status === "good" ||
-            data[itemKey]?.status === "normal";
+      {Object.keys(data || {})?.length ? (
+        <>
+          <h2>Key Metrics</h2>
+          <Grid
+            gridDefinition={Array(Object.keys(data || {})?.length || 10).fill({
+              colspan: 3,
+            })}
+          >
+            {Object.keys(data || {})?.map((itemKey: any, index: number) => {
+              let cardStatusGreen =
+                data[itemKey]?.status === "good" ||
+                data[itemKey]?.status === "normal";
 
-          return (
-            <Container
-              data-card-panel-container
-              data-card-panel-status={cardStatusGreen}
-              key={index}
-            >
-              <Box data-top-card-panel>
-                <Box data-top-card-panel-content>
-                  <p
-                    data-font-ember-bold
-                    title={itemKey}
-                    data-card-panel-title-with-info
-                  >
-                    <Popover
-                      dismissButton={false}
-                      position="top"
-                      size="small"
-                      triggerType="custom"
-                      content={data[itemKey]?.context}
-                    >
-                      <span data-rca-recommendation-list-item-reason>
-                        <span
-                          data-font-ember-bold
-                          style={{
-                            marginRight: "4px",
-                            fontSize: "16px",
-                            marginTop: "4px",
-                          }}
+              return (
+                <Container
+                  data-card-panel-container
+                  data-card-panel-status={cardStatusGreen}
+                  key={index}
+                >
+                  <Box data-top-card-panel>
+                    <Box data-top-card-panel-content>
+                      <p
+                        data-font-ember-bold
+                        title={itemKey}
+                        data-card-panel-title-with-info
+                      >
+                        <Popover
+                          dismissButton={false}
+                          position="top"
+                          size="small"
+                          triggerType="custom"
+                          content={data[itemKey]?.context}
                         >
-                          {itemKey}
-                        </span>
-                        <img src={exclamationCircle} alt="missing" />
-                      </span>
-                    </Popover>
-                  </p>
-                  <img
-                    src={confidenceIcon}
-                    data-dashboard-card-icons
-                    alt="missing"
-                  />
-                </Box>
+                          <span data-rca-recommendation-list-item-reason>
+                            <span
+                              data-font-ember-bold
+                              style={{
+                                marginRight: "4px",
+                                fontSize: "16px",
+                                marginTop: "4px",
+                              }}
+                            >
+                              {itemKey}
+                            </span>
+                            <img src={exclamationCircle} alt="missing" />
+                          </span>
+                        </Popover>
+                      </p>
+                      <img
+                        src={confidenceIcon}
+                        data-dashboard-card-icons
+                        alt="missing"
+                      />
+                    </Box>
 
-                <h1 data-card-panel-main-text-value>
-                  {data[itemKey]?.value +
-                    (data[itemKey]?.unit?.length > 1 ? " " : "") +
-                    data[itemKey]?.unit}
-                </h1>
-                <div data-card-panel-status-wrapper>
-                  <p>
-                    <span data-font-ember-bold>Benchmark : </span>
-                    <span>{data[itemKey]?.benchmark}</span>
-                  </p>
-                  <p>
-                    <Badge data-anomaly-detected-badge>
-                      <span data-font-ember-bold>{data[itemKey]?.status}</span>
-                    </Badge>
-                  </p>
-                </div>
-              </Box>
-            </Container>
-          );
-        })}
-      </Grid>
+                    <h1 data-card-panel-main-text-value>
+                      {data[itemKey]?.value +
+                        (data[itemKey]?.unit?.length > 1 ? " " : "") +
+                        data[itemKey]?.unit}
+                    </h1>
+                    <div data-card-panel-status-wrapper>
+                      <p>
+                        <span data-font-ember-bold>Benchmark : </span>
+                        <span>{data[itemKey]?.benchmark}</span>
+                      </p>
+                      <p>
+                        <Badge data-anomaly-detected-badge>
+                          <span data-font-ember-bold>
+                            {data[itemKey]?.status}
+                          </span>
+                        </Badge>
+                      </p>
+                    </div>
+                  </Box>
+                </Container>
+              );
+            })}
+          </Grid>
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 };
@@ -315,7 +361,9 @@ const getQuestionAndAnswers = (data: any) => {
     let headerContent = (
       <div data-header-panel-content>
         <p style={{ fontSize: "17px" }}>
-          <span data-font-ember-bold>{index+1}</span>{") "}{item?.question}{" "}
+          <span data-font-ember-bold>{index + 1}</span>
+          {") "}
+          {item?.question}{" "}
           <Badge data-anomaly-detected-badge>
             <span data-font-ember-bold>{item.severity}</span>
           </Badge>
@@ -365,7 +413,9 @@ export const transformRecommendationPanel = (data: any) => {
     let headerContent = (
       <div data-header-panel-content>
         <p style={{ fontSize: "17px" }}>
-          <span data-font-ember-bold>{index+1}</span>{") "}{item?.action}{" "}
+          <span data-font-ember-bold>{index + 1}</span>
+          {") "}
+          {item?.action}{" "}
           <Badge data-anomaly-detected-badge>
             <span data-font-ember-bold>{item.priority}</span>
           </Badge>

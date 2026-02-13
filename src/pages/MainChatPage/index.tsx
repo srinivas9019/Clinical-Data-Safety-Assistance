@@ -13,7 +13,7 @@ import getChatDetails from "./useMainChatPage";
 
 const MainChatPage = () => {
   const {
-    chatDetails,
+    appGlobalData,
     enteredChat,
     setEnteredChat,
     onUserChatEnter,
@@ -54,11 +54,14 @@ const MainChatPage = () => {
           }
         >
           <SpaceBetween size="l">
-            {chatDetails.map((chatDetail: any, index: number) => (
-              <div key={index} data-chat-bubble-wrapper>
-                {chatDetail}
-              </div>
-            ))}
+            {/* {chatDetails.map((chatDetail: any, index: number) => ( */}
+            {appGlobalData?.currentChatDetails?.map(
+              (chatDetail: any, index: number) => (
+                <div key={index} data-chat-bubble-wrapper>
+                  {chatDetail}
+                </div>
+              ),
+            )}
             {waitingForResponse ? (
               <LiveRegion>
                 <Box
@@ -72,19 +75,6 @@ const MainChatPage = () => {
             ) : (
               <></>
             )}
-            {/* <PromptInput
-              data-prompt-input-box
-              onChange={({ detail }) => setEnteredChat(detail.value)}
-              value={enteredChat}
-              onAction={() => {
-                enteredChat?.length && onUserChatEnter();
-              }}
-              actionButtonAriaLabel="Send message"
-              actionButtonIconName="send"
-              ariaLabel="Prompt input with action button"
-              placeholder="Please ask a question"
-              disabled={waitingForResponse}
-            /> */}
           </SpaceBetween>
         </Container>
       </div>

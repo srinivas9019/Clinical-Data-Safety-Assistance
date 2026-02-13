@@ -28,14 +28,14 @@
 [data-history-list-item] {
   white-space: nowrap;
   overflow: hidden;
-  border-bottom: 1px solid #EBEBF0;
+  border-bottom: 1px solid #ebebf0;
   cursor: pointer;
-  padding: 10px 0 10px 4px ;
+  padding: 10px 0 10px 4px;
   text-overflow: ellipsis;
 }
-[data-history-list-item] span{
-    text-overflow: ellipsis;
-    overflow: hidden;
+[data-history-list-item] span {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 [data-history-list-item]:not([data-history-list-item-disabled]):hover {
@@ -44,13 +44,15 @@
   font-family:
     "Amazon-Ember-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
-[data-history-title]{
-    font-size: 17px;
-    padding-left: 4px;
+[data-history-title] {
+  font-size: 17px;
+  padding-left: 4px;
 }
-[data-history-list-item-disabled]{
-    cursor: auto;
-    user-select: none;
-
+[data-history-list-item-disabled] {
+  cursor: auto;
+  user-select: none;
+}
+[data-app-left-nav-history-panel]{
+  position: relative;
 }
 /* data-app-left-nav-history-panel data-history-panel-is-open */

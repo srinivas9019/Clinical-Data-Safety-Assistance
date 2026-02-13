@@ -6,21 +6,11 @@ import {
 } from "@aws-sdk/client-bedrock-agentcore"; // ES Modules import
 import { config } from "./config";
 
-export const getPromptResult = async (input_text: string) => {
+export const getPromptResult = async (input_text: string, session_id: any) => {
   const client = new BedrockAgentCoreClient(config);
 
-  function generateSessionId(length = 40) {
-    const bytes = crypto.getRandomValues(new Uint8Array(length));
-    const chars = "abcdefghijklmnopqrstuvwxyz";
-    let result = "";
-    for (let b of bytes) {
-      result += chars[b % chars.length];
-    }
-    return result;
-  }
-
   const input = {
-    runtimeSessionId: generateSessionId(), // Must be 33+ chars
+    runtimeSessionId: session_id, // Must be 33+ chars
     agentRuntimeArn: import.meta.env.VITE_API_CHAT_URL,
     payload: JSON.stringify({ prompt: input_text }), //new TextEncoder().encode(input_text), // e.g. Buffer.from(input_text) or new TextEncoder().encode(input_text)   // required
   };
