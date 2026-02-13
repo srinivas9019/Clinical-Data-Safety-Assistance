@@ -59,20 +59,30 @@ const getChatDetails = () => {
   const onUserChatEnter = async () => {
     setWaitingForResponse(true);
 
-    setAppGlobalData((prevData: any) => ({
-      ...prevData,
-      currentChatDetails: [
-        ...prevData.currentChatDetails,
-        getChatTextMsgPanel({
-          type: ChatMsgIOTypes.OUTGOING,
-          message: enteredChat,
-        }),
-      ],
-    }));
+    setAppGlobalData((prevData: any) => {
+      return {
+        ...prevData,
+        currentChatDetails: [
+          ...(prevData?.currentChatDetails || {}),
+          getChatTextMsgPanel({
+            type: ChatMsgIOTypes.OUTGOING,
+            message: enteredChat,
+          }),
+        ],
+      };
+    });
 
     let promptRes: any = "";
     try {
       promptRes = await getPromptResult(enteredChat, generateSessionId());
+      setAppGlobalData((prevData: any) => ({
+        ...prevData,
+        chatSessionDetails: {
+          ...(prevData?.chatSessionDetails || {}),
+          lastQuestion: enteredChat,
+        },
+      }));
+
       saveMessagesViaAPI(enteredChat, "user");
       setTimeout(() => {
         saveMessagesViaAPI(promptRes?.result, "assistant");
@@ -88,7 +98,7 @@ const getChatDetails = () => {
     setAppGlobalData((prevData: any) => ({
       ...prevData,
       currentChatDetails: [
-        ...prevData.currentChatDetails,
+        ...(prevData?.currentChatDetails || {}),
         transformResponseToChat(promptRes?.result),
         // transformResponseToChat(ApiChatTempData),
       ],

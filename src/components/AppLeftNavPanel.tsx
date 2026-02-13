@@ -35,6 +35,11 @@ const AppLeftNAvPanel = () => {
     startNewChat();
   }, []);
 
+  useEffect(() => {
+    appGlobalData?.chatSessionDetails?.lastQuestion &&
+      startNewChat(appGlobalData?.chatSessionDetails?.lastQuestion);
+  }, [appGlobalData?.chatSessionDetails?.lastQuestion]);
+
   const getChatHistory = async () => {
     setHistoryChatLoading(true);
     api.get(appUrls.ALL_CHAT_HISTORY).then((res) => {
@@ -48,13 +53,14 @@ const AppLeftNAvPanel = () => {
 
       if (appGlobalData?.chatSessionDetails?.currChatId === "") {
         setAppGlobalData((prevData: any) => ({
-          ...prevData,
+          ...(prevData || {}),
           chatSessionDetails: {
-            ...prevData?.chatSessionDetails,
+            ...(prevData?.chatSessionDetails || {}),
             currChatId: res?.data.sessions?.[0]?.session_id || "",
             currChatSessionId: res?.data.sessions?.[0]?.session_id
               ? generateSessionId()
               : "",
+            lastQuestion: "",
           },
         }));
       }
@@ -82,6 +88,14 @@ const AppLeftNAvPanel = () => {
           });
           return;
         }
+        setAppGlobalData((prevData: any) => ({
+          ...prevData,
+          chatSessionDetails: {
+            currChatId: res?.data?.session?.session_id,
+            currChatSessionId: generateSessionId(),
+            lastQuestion: res?.data?.session?.title,
+          },
+        }));
 
         res.data?.messages?.map((msg: any) => {
           if (msg.role === "user") {
@@ -109,18 +123,40 @@ const AppLeftNAvPanel = () => {
       .catch(() => {});
   };
 
-  const startNewChat = () => {
-    showPageLoader({
-      status: true,
-      title: "Please Wait, Loading New Session !!",
-    });
-    api
-      .post(appUrls.NEW_CHAT_SESSION, {
-        user_id: "CDA_Test_user",
-        session_id: "chat-" + getNewChatSessionId(),
+  const startNewChat = (updateChatTitle?: any) => {
+    let newChatPayload = {
+      user_id: "CDA_Test_user",
+      session_id: "chat-" + getNewChatSessionId(),
+      agent_id: "agent-chat",
+      title: "New Chat.",
+    };
+    if (!updateChatTitle?.length) {
+      showPageLoader({
+        status: true,
+        title: "Please Wait, Loading New Session !!",
+      });
+    }
+    if (updateChatTitle?.length) {
+      newChatPayload = {
+        user_id: appGlobalData?.userDetails?.userId,
+        session_id: appGlobalData?.chatSessionDetails?.currChatId,
         agent_id: "agent-chat",
-        title: "Mix the sample for 12 cycles and incubate it for 1",
-      })
+        title: appGlobalData?.chatSessionDetails?.lastQuestion,
+      };
+    }
+
+    let checkIsNewSession = !updateChatTitle?.length
+      ? [
+          getChatTextMsgPanel({
+            type: ChatMsgIOTypes.INCOMING,
+            message:
+              "Hello! I am your Clinical Data Safety Assistant. How can I assist you today?",
+          }),
+        ]
+      : appGlobalData?.currentChatDetails;
+
+    api
+      .post(appUrls.NEW_CHAT_SESSION, newChatPayload)
       .then((res) => {
         setAppGlobalData((prevData: any) => ({
           ...prevData,
@@ -128,14 +164,9 @@ const AppLeftNAvPanel = () => {
           chatSessionDetails: {
             currChatId: res?.data?.session?.session_id,
             currChatSessionId: generateSessionId(),
+            lastQuestion: "",
           },
-          currentChatDetails: [
-            getChatTextMsgPanel({
-              type: ChatMsgIOTypes.INCOMING,
-              message:
-                "Hello! I am your Clinical Data Safety Assistant. How can I assist you today?",
-            }),
-          ],
+          currentChatDetails: checkIsNewSession,
         }));
         setTimeout(() => {
           getChatHistory();
@@ -162,9 +193,10 @@ const AppLeftNAvPanel = () => {
           setAppGlobalData((prevData: any) => ({
             ...prevData,
             chatSessionDetails: {
-              ...prevData?.chatSessionDetails,
+              ...(prevData?.chatSessionDetails || {}),
               currChatId: "",
               currChatSessionId: generateSessionId(),
+              lastQuestion: "",
             },
           }));
         }

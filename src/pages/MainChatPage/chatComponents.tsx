@@ -23,7 +23,6 @@ import { SummaryPanel } from "../../components/SummaryPanel";
 import MultiLineChart from "../../components/Graphs/MultiLineChart";
 
 export const transformResponseToChat = (apiResponse: any) => {
-  console.log(apiResponse);
   let allKeyMetrics: any = {};
   let QAnswers: any = [];
   let allRecommendations: any = [];
@@ -196,7 +195,6 @@ export const transformResponseToChat = (apiResponse: any) => {
                       <SpaceBetween size="l">
                         {AllCharts?.length ? (
                           AllCharts?.map((chart: any) => {
-                            console.log(AllCharts);
                             return getChartWithType(chart);
                           })
                         ) : (
@@ -433,7 +431,6 @@ export const transformRecommendationPanel = (data: any) => {
 };
 
 const getChartWithType = (data: any) => {
-  console.log(data?.chart_type);
   switch (data?.chart_type) {
     case "bar_chart":
       return getBarChart(data);
@@ -463,7 +460,6 @@ const getLineChart = (data: any) => {
       data: lineData || [],
     };
   });
-  console.log(lineItems);
   return (
     <Container data-center-bar-graph-legend>
       <h2 data-container-header-b-margin>{data?.title}</h2>

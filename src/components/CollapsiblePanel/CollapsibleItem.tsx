@@ -6,10 +6,8 @@ const CollapsibleItemRow = (data: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    console.log(currentPanelId, item.rowId);
     if (currentPanelId === item.rowId) {
       setIsOpen((prevState) => {
-        console.log(prevState);
         return !prevState;
       });
     } else {

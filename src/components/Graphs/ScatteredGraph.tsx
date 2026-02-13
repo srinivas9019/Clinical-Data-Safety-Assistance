@@ -13,7 +13,6 @@ const ScatteredGraph = ({
   horizontalBars?: boolean;
   otherProps?: any;
 }) => {
-  console.log(JSON.stringify(data));
   return (
     <>
       <CartesianChart
