@@ -445,11 +445,11 @@ const getChartWithType = (data: any) => {
   }
 };
 const getLineChart = (data: any) => {
-  let lineItems = data?.data?.series?.map((item: any) => {
+  let lineItems = data?.data_series?.map((item: any) => {
     let lineData: { x: number; y: number }[] = [];
-    item?.values?.map((linePoint: any, index: number) => {
+    item?.data?.map((linePoint: any, index: number) => {
       lineData.push({
-        x: data?.data?.x_values[index],
+        x: data?.x_axis?.values[index],
         y: linePoint,
       });
     });

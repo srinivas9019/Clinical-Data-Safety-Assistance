@@ -66,8 +66,8 @@ const SsoLogin = () => {
 
   return (
     <Box textAlign="center" data-gtn-connecting-text>
-      <PanelLoader title="Connecting to GTN System..." />
-      {/* <h2>GTN Forecasting & Analysis System</h2> */}
+      <PanelLoader title="Connecting to Clinical Development Assistant..." />
+      
     </Box>
   );
 };

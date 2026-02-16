@@ -1,7 +1,7 @@
 [data-summary-container] {
   padding: 16px;
-  border: 1px solid #fee5c5;
-  background-color: #fff6ea;
+  /* border: 1px solid #fee5c5;
+  background-color: #fff6ea; */
   border-radius: 16px;
 }
 [data-summary-container] p {

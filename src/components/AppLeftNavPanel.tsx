@@ -127,7 +127,7 @@ const AppLeftNAvPanel = () => {
       user_id: "CDA_Test_user",
       session_id: "chat-" + getNewChatSessionId(),
       agent_id: "agent-chat",
-      title: "New Chat.",
+      title: "New Chat",
     };
     if (!updateChatTitle?.length) {
       showPageLoader({
@@ -149,7 +149,7 @@ const AppLeftNAvPanel = () => {
           getChatTextMsgPanel({
             type: ChatMsgIOTypes.INCOMING,
             message:
-              "Hello! I am your Clinical Data Safety Assistant. How can I assist you today?",
+              "Hello! I am your Clinical Development Assistant. How can I assist you today?",
           }),
         ]
       : appGlobalData?.currentChatDetails;

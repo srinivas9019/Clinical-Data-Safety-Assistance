@@ -24,7 +24,7 @@ const MainChatPage = () => {
     <>
       <div data-main-chat-page-wrapper>
         <Box data-header-with-btn>
-          <Header variant="h1">Clinical Data Safety Assistance</Header>
+          <Header variant="h1">Clinical Development Assistance</Header>
           <Button
             data-font-ember-bold
             onClick={() => {

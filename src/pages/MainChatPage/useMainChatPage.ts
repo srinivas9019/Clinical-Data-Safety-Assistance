@@ -27,7 +27,7 @@ const getChatDetails = () => {
         getChatTextMsgPanel({
           type: ChatMsgIOTypes.INCOMING,
           message:
-            "Hello! I am your Clinical Data Safety Assistant. How can I assist you today?",
+            "Hello! I am your Clinical Development Assistant. How can I assist you today?",
         }),
       ],
     }));
