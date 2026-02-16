@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import AppLayout from "@cloudscape-design/components/app-layout";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
 import awsLogo from "../assets/icons/aws-logo.svg";
-import MainChatPage from "../pages/MainChatPage";
+
 import AppLeftNAvPanel from "./AppLeftNavPanel";
+import { Outlet } from "react-router-dom";
+import { useAppToast } from "../Context/AppGlobalToast";
+import { useAuth } from "../Cognito-Auth/AuthContext";
 
 const MainLayout: React.FC = () => {
   const [navigationOpen, setNavigationOpen] = useState(true);
-
+  const { addNewToast } = useAppToast();
+  const { signOut, user } = useAuth();
   return (
     <>
       <div data-main-page-scrolling-panel>
@@ -21,9 +25,24 @@ const MainLayout: React.FC = () => {
             { type: "button", text: "Help" },
             {
               type: "menu-dropdown",
-              text: "user",
+              text: user?.username || "user",
               title: "Account",
-              items: [{ id: "signout", text: "Sign out" }],
+              items: [
+                { id: "signout", text: "Sign out" },
+              ],
+              onItemClick: (event) => {
+                switch (event.detail.id) {
+                  case "signout": {
+                    signOut();
+                    setTimeout(() => {
+                      addNewToast({
+                        type: "SUCCESS",
+                        content: "Logged-Out Successfully.",
+                      });
+                    }, 100);
+                  }
+                }
+              },
             },
           ]}
         />
@@ -43,7 +62,8 @@ const MainLayout: React.FC = () => {
                 height: "100%",
               }}
             >
-              <MainChatPage />
+              {/* <MainChatPage /> */}
+              <Outlet />
             </div>
           }
         />

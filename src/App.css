@@ -159,7 +159,7 @@ html {
   p {
   font-size: 17px;
 }
-[data-history-list-item]{
+[data-history-list-item] {
   user-select: none;
 }
 [data-history-list-item-active="true"] {
@@ -171,18 +171,12 @@ html {
 [data-chat-remove-icon] {
   margin-right: 6px;
 }
-[data-chat-remove-icon]:hover > span, [data-chat-remove-icon]:hover svg {
+[data-chat-remove-icon]:hover > span,
+[data-chat-remove-icon]:hover svg {
   width: 18px !important;
   height: 20px !important;
 }
 
-
-
-
-
-
-
-
-
-
-
+[class*="awsui_top-navigation"] [class*="awsui_menu-item"] div{
+  color: #fff !important;
+}

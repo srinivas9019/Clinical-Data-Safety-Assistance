@@ -21,7 +21,6 @@ import {
 } from "../pages/MainChatPage/chatComponents";
 import { ChatMsgIOTypes } from "../App-Interfaces/ChatRelatedInterfaces";
 import { useAppToast } from "../Context/AppGlobalToast";
-import axios from "axios";
 const AppLeftNAvPanel = () => {
   const [value, setValue] = useState("");
   const [historyList, setHistoryList] = useState([]);
@@ -179,7 +178,7 @@ const AppLeftNAvPanel = () => {
 
   const deleteChatFromHistory = (chatInfo: any) => {
     setHistoryChatLoading(true);
-    axios
+    api
       .delete(
         appUrls.DELETE_CHAT_SESSION +
           chatInfo?.session_id +

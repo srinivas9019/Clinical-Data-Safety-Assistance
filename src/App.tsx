@@ -1,14 +1,21 @@
 import "./App.css";
-import MainLayout from "./components/MainLayout";
+import { BrowserRouter as Router } from "react-router-dom";
 import { AppGlobalDataProvider } from "./Context/AppGlobalData";
 import { ToastProvider } from "./Context/AppGlobalToast";
-import "./components/PanelLoader/panelLoader.css"
+import "./components/PanelLoader/panelLoader.css";
+import { AuthProvider } from "./Cognito-Auth/AuthContext";
+
+import AppRoutes from "./appRoutes";
 function App() {
   return (
     <>
       <AppGlobalDataProvider>
         <ToastProvider>
-          <MainLayout />
+          <AuthProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </AuthProvider>
         </ToastProvider>
       </AppGlobalDataProvider>
     </>

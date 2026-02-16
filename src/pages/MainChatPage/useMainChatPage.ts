@@ -5,8 +5,7 @@ import { useAppToast } from "../../Context/AppGlobalToast";
 import api from "../../api";
 import { appUrls } from "../../api/config";
 import { useGlobalContext } from "../../Context/AppGlobalData";
-import { getPromptResult } from "../../api/bedrock-client";
-import { generateSessionId } from "../../utility";
+
 // import { ApiChatTempData } from "./ApiResponse";
 
 const getChatDetails = () => {
@@ -14,19 +13,11 @@ const getChatDetails = () => {
     "We're planning simultaneous FDA and EMA submissions for our cardiovascular program. Analyze regulatory requirements, identify harmonization opportunities, and recommend an optimal submission strategy",
   );
   const { setAppGlobalData, appGlobalData } = useGlobalContext();
-  const { addNewToast, showPageLoader } = useAppToast();
+  const { addNewToast } = useAppToast();
   const [waitingForResponse, setWaitingForResponse] = useState(false);
 
   useEffect(() => {
     initializeAIChat();
-    showPageLoader({ status: true, title: "Loading Cognito Credentials..." });
-    api.get(appUrls.COGNITO_CREDENTIALS).then((res) => {
-      showPageLoader({ status: false });
-      setAppGlobalData((prevData: any) => ({
-        ...prevData,
-        cognitoDetails: res || null,
-      }));
-    });
   }, []);
 
   const initializeAIChat = () => {
@@ -56,6 +47,41 @@ const getChatDetails = () => {
       });
   };
 
+  async function customInvokeAgent(prompt: any, jwtToken: string) {
+    // Your agent ARN
+
+    const arn = import.meta.env.VITE_API_CHAT_URL;
+
+    // Build the correct URL
+    const url = `https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/${encodeURIComponent(
+      arn,
+    )}/invocations`;
+
+    const body = {
+      prompt,
+    };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      addNewToast({
+        type: "ERROR",
+        content: `Error invoking agent: ${response.status} ${text}`,
+      });
+      throw new Error(`Error invoking agent: ${response.status} ${text}`);
+    }
+
+    return await response.json();
+  }
+
   const onUserChatEnter = async () => {
     setWaitingForResponse(true);
 
@@ -74,7 +100,14 @@ const getChatDetails = () => {
 
     let promptRes: any = "";
     try {
-      promptRes = await getPromptResult(enteredChat, generateSessionId());
+      // promptRes = await getPromptResult(enteredChat, generateSessionId());
+      promptRes = await customInvokeAgent(
+        enteredChat,
+        localStorage.getItem("access_token") || "",
+      );
+
+      console.log("Agent Response:", promptRes);
+
       setAppGlobalData((prevData: any) => ({
         ...prevData,
         chatSessionDetails: {
@@ -85,7 +118,7 @@ const getChatDetails = () => {
 
       saveMessagesViaAPI(enteredChat, "user");
       setTimeout(() => {
-        saveMessagesViaAPI(promptRes?.result, "assistant");
+        saveMessagesViaAPI(promptRes, "assistant");
       }, 200);
     } catch (error: any) {
       console.log(error);
@@ -99,7 +132,7 @@ const getChatDetails = () => {
       ...prevData,
       currentChatDetails: [
         ...(prevData?.currentChatDetails || {}),
-        transformResponseToChat(promptRes?.result),
+        transformResponseToChat(promptRes),
         // transformResponseToChat(ApiChatTempData),
       ],
     }));
