@@ -3,7 +3,6 @@ import { ChatMsgIOTypes } from "../../App-Interfaces/ChatRelatedInterfaces";
 import { getChatTextMsgPanel, transformResponseToChat } from "./chatComponents";
 import { useAppToast } from "../../Context/AppGlobalToast";
 import api from "../../api";
-import { appUrls } from "../../api/config";
 import { useGlobalContext } from "../../Context/AppGlobalData";
 
 // import { ApiChatTempData } from "./ApiResponse";
@@ -35,10 +34,11 @@ const getChatDetails = () => {
 
   const saveMessagesViaAPI = (enteredData: any, userType: any) => {
     let configuredUrl =
-      appUrls.SAVE_MESSAGE +
+      import.meta.env.VITE_CHAT_URL +
+      "/" +
       appGlobalData?.chatSessionDetails?.currChatId +
       "/messages?user_id=" +
-      appGlobalData?.userDetails?.userId;
+      localStorage.getItem("user_name");
 
     api
       .post(configuredUrl, { role: userType, content: enteredData })

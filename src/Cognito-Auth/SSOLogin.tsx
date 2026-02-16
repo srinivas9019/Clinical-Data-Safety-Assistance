@@ -46,6 +46,7 @@ const SsoLogin = () => {
           organization: "",
         };
         localStorage.setItem("auth_user", JSON.stringify(auth_user));
+        localStorage.setItem("user_name", user.email)
 
         /** Update AuthContext so ProtectedRoute recognizes the user */
         auth.setUser(auth_user);

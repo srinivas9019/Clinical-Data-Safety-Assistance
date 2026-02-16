@@ -8,7 +8,7 @@ import {
 import "./SplitPanel.css";
 import { useEffect, useState } from "react";
 import api from "../api";
-import { appUrls } from "../api/config";
+
 import {
   generateSessionId,
   getNewChatSessionId,
@@ -41,29 +41,35 @@ const AppLeftNAvPanel = () => {
 
   const getChatHistory = async () => {
     setHistoryChatLoading(true);
-    api.get(appUrls.ALL_CHAT_HISTORY).then((res) => {
-      setHistoryList(res?.data.sessions || []);
-      setHistoryChatLoading(false);
+    api
+      .get(
+        import.meta.env.VITE_CHAT_URL +
+          "/?user_id=" +
+          localStorage.getItem("user_name"),
+      )
+      .then((res) => {
+        setHistoryList(res?.data.sessions || []);
+        setHistoryChatLoading(false);
 
-      if (!res?.data.sessions?.length) {
-        startNewChat();
-        return;
-      }
+        if (!res?.data.sessions?.length) {
+          startNewChat();
+          return;
+        }
 
-      if (appGlobalData?.chatSessionDetails?.currChatId === "") {
-        setAppGlobalData((prevData: any) => ({
-          ...(prevData || {}),
-          chatSessionDetails: {
-            ...(prevData?.chatSessionDetails || {}),
-            currChatId: res?.data.sessions?.[0]?.session_id || "",
-            currChatSessionId: res?.data.sessions?.[0]?.session_id
-              ? generateSessionId()
-              : "",
-            lastQuestion: "",
-          },
-        }));
-      }
-    });
+        if (appGlobalData?.chatSessionDetails?.currChatId === "") {
+          setAppGlobalData((prevData: any) => ({
+            ...(prevData || {}),
+            chatSessionDetails: {
+              ...(prevData?.chatSessionDetails || {}),
+              currChatId: res?.data.sessions?.[0]?.session_id || "",
+              currChatSessionId: res?.data.sessions?.[0]?.session_id
+                ? generateSessionId()
+                : "",
+              lastQuestion: "",
+            },
+          }));
+        }
+      });
   };
 
   const getChatFromHistory = (chatItem: any) => {
@@ -74,10 +80,11 @@ const AppLeftNAvPanel = () => {
 
     api
       .get(
-        appUrls.SINGLE_CHAT +
+        import.meta.env.VITE_CHAT_URL +
+          "/" +
           chatItem?.session_id +
           "?user_id=" +
-          appGlobalData?.userDetails?.userId,
+          localStorage.getItem("user_name"),
       )
       ?.then((res) => {
         if (!res.data?.messages?.length) {
@@ -124,7 +131,7 @@ const AppLeftNAvPanel = () => {
 
   const startNewChat = (updateChatTitle?: any) => {
     let newChatPayload = {
-      user_id: "CDA_Test_user",
+      user_id: localStorage.getItem("user_name"),
       session_id: "chat-" + getNewChatSessionId(),
       agent_id: "agent-chat",
       title: "New Chat",
@@ -137,7 +144,7 @@ const AppLeftNAvPanel = () => {
     }
     if (updateChatTitle?.length) {
       newChatPayload = {
-        user_id: appGlobalData?.userDetails?.userId,
+        user_id: localStorage.getItem("user_name"),
         session_id: appGlobalData?.chatSessionDetails?.currChatId,
         agent_id: "agent-chat",
         title: appGlobalData?.chatSessionDetails?.lastQuestion,
@@ -155,7 +162,7 @@ const AppLeftNAvPanel = () => {
       : appGlobalData?.currentChatDetails;
 
     api
-      .post(appUrls.NEW_CHAT_SESSION, newChatPayload)
+      .post(import.meta.env.VITE_CHAT_URL, newChatPayload)
       .then((res) => {
         setAppGlobalData((prevData: any) => ({
           ...prevData,
@@ -180,7 +187,8 @@ const AppLeftNAvPanel = () => {
     setHistoryChatLoading(true);
     api
       .delete(
-        appUrls.DELETE_CHAT_SESSION +
+        import.meta.env.VITE_CHAT_URL +
+          "/" +
           chatInfo?.session_id +
           "?user_id=" +
           chatInfo?.user_id,
