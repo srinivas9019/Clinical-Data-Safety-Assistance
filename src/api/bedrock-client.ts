@@ -11,7 +11,7 @@ export const getPromptResult = async (input_text: string, session_id: any) => {
 
   const input = {
     runtimeSessionId: session_id, // Must be 33+ chars
-    agentRuntimeArn: import.meta.env.VITE_API_CHAT_URL,
+    agentRuntimeArn: import.meta.env.VITE_AGENT_ARN,
     payload: JSON.stringify({ prompt: input_text }), //new TextEncoder().encode(input_text), // e.g. Buffer.from(input_text) or new TextEncoder().encode(input_text)   // required
   };
 

@@ -18,7 +18,7 @@ const MainLayout: React.FC = () => {
         <TopNavigation
           identity={{
             href: "/",
-            title: "Clinical Development Assistance",
+            title: "Clinical Development Assistant",
             logo: { src: awsLogo, alt: "App" },
           }}
           utilities={[

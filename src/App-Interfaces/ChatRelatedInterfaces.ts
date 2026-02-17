@@ -2,6 +2,10 @@ export const ChatMsgIOTypes = {
     INCOMING: "Incoming",
     OUTGOING: "Outgoing",
 }
+export const UserTypes = {
+    USER:"user",
+    ASSISTANT:"assistant"
+}
 export type ChatMsgIOKeys = typeof ChatMsgIOTypes[keyof typeof ChatMsgIOTypes];
 
 export const ChatMsgPanelTypes = {

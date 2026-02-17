@@ -9,15 +9,15 @@ import AppRoutes from "./appRoutes";
 function App() {
   return (
     <>
-      <AppGlobalDataProvider>
-        <ToastProvider>
-          <AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AppGlobalDataProvider>
             <Router>
               <AppRoutes />
             </Router>
-          </AuthProvider>
-        </ToastProvider>
-      </AppGlobalDataProvider>
+          </AppGlobalDataProvider>
+        </AuthProvider>
+      </ToastProvider>
     </>
   );
 }

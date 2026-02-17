@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Container,
   Header,
   LiveRegion,
@@ -10,13 +9,14 @@ import {
 import LoadingBar from "@cloudscape-design/chat-components/loading-bar";
 
 import getChatDetails from "./useMainChatPage";
+import { transformStateIntoComponents } from "./chatComponents";
 
 const MainChatPage = () => {
   const {
     appGlobalData,
     enteredChat,
     setEnteredChat,
-    onUserChatEnter,
+    checkForSessionIdAndProceed,
     waitingForResponse,
   } = getChatDetails();
 
@@ -24,15 +24,15 @@ const MainChatPage = () => {
     <>
       <div data-main-chat-page-wrapper>
         <Box data-header-with-btn>
-          <Header variant="h1">Clinical Development Assistance</Header>
-          <Button
+          <Header variant="h1">Clinical Development Assistant</Header>
+          {/* <Button
             data-font-ember-bold
             onClick={() => {
               console.log("Download Conversation clicked");
             }}
           >
             Download Chat
-          </Button>
+          </Button> */}
         </Box>
         <Container
           data-chat-panel
@@ -43,7 +43,7 @@ const MainChatPage = () => {
               onChange={({ detail }) => setEnteredChat(detail.value)}
               value={enteredChat}
               onAction={() => {
-                enteredChat?.length && onUserChatEnter();
+                enteredChat?.length && checkForSessionIdAndProceed();
               }}
               actionButtonAriaLabel="Send message"
               actionButtonIconName="send"
@@ -58,7 +58,7 @@ const MainChatPage = () => {
             {appGlobalData?.currentChatDetails?.map(
               (chatDetail: any, index: number) => (
                 <div key={index} data-chat-bubble-wrapper>
-                  {chatDetail}
+                  {transformStateIntoComponents(chatDetail)}
                 </div>
               ),
             )}

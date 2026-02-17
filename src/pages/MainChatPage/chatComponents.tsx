@@ -12,7 +12,10 @@ import {
 
 import confidenceIcon from "../../assets/icons/confidence-icon.svg";
 import exclamationCircle from "../../assets/icons/exclamation-circle.svg";
-import { ChatMsgIOTypes } from "../../App-Interfaces/ChatRelatedInterfaces";
+import {
+  ChatMsgIOTypes,
+  UserTypes,
+} from "../../App-Interfaces/ChatRelatedInterfaces";
 
 import BarChart from "../../components/Graphs/BarChart";
 import CollapsiblePanel from "../../components/CollapsiblePanel";
@@ -57,7 +60,6 @@ export const transformResponseToChat = (apiResponse: any) => {
         ...ObjDomain?.analysis_results?.questions_answered?.slice(0, 2),
       ]);
 
-    
     Object.keys(ObjDomain?.visualizations?.data_table || {})?.length &&
       (domainTableData[domain] = formatTableData(
         ObjDomain?.visualizations?.data_table,
@@ -572,4 +574,12 @@ export const getChatTextMsgPanel = (data: any) => {
       </span>
     </div>
   );
+};
+
+export const transformStateIntoComponents = (data: any) => {
+  if (data.userType === UserTypes.ASSISTANT) {
+   return transformResponseToChat(data?.content?.message || {});
+  } else {
+    return getChatTextMsgPanel(data?.content);
+  }
 };

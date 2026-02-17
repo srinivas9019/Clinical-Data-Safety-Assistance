@@ -13,7 +13,7 @@ interface AuthContextType {
   flashItems: FlashbarProps.MessageDefinition[];
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   signInWithSSO: (provider: string) => void;
-  signInWithPassword: (username: string, password: string) => Promise<void>;
+  
   signOut: () => void;
   setFlashItems: (items: FlashbarProps.MessageDefinition[]) => void;
   setChatHistoryList: (list: any[]) => void;
@@ -67,28 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     window.location.href = loginUrl;
   };
 
-  const signInWithPassword = async (username: string, password: string) => {
-    setIsLoading(false);
-    // Simulate password authentication
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simple demo account validation
-    if (username === "demo" && password === "demo") {
-      const mockUser: User = {
-        id: `demo-${Date.now()}`,
-        email: "demo@aiagent.hub",
-        name: "Demo User",
-        provider: "demo",
-        organization: "demo-org",
-        username: "demo.user",
-      };
-
-      setUser(mockUser);
-      localStorage.setItem("auth_user", JSON.stringify(mockUser));
-    }
-
-    setIsLoading(false);
-  };
 
   const signOut = () => {
     setUser(null);
@@ -116,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         flashItems,
         setError,
         signInWithSSO,
-        signInWithPassword,
+      
         signOut,
         setFlashItems,
         setChatHistoryList,

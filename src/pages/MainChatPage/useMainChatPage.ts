@@ -1,56 +1,46 @@
 import { useEffect, useState } from "react";
-import { ChatMsgIOTypes } from "../../App-Interfaces/ChatRelatedInterfaces";
-import { getChatTextMsgPanel, transformResponseToChat } from "./chatComponents";
+import {
+  ChatMsgIOTypes,
+  UserTypes,
+} from "../../App-Interfaces/ChatRelatedInterfaces";
+
 import { useAppToast } from "../../Context/AppGlobalToast";
 import api from "../../api";
 import { useGlobalContext } from "../../Context/AppGlobalData";
+import { generateSessionId, getNewChatSessionId } from "../../utility";
 
 // import { ApiChatTempData } from "./ApiResponse";
 
 const getChatDetails = () => {
   const [enteredChat, setEnteredChat] = useState<string>(
-    "We're planning simultaneous FDA and EMA submissions for our cardiovascular program. Analyze regulatory requirements, identify harmonization opportunities, and recommend an optimal submission strategy",
+    "For patients dropping out of our diabetes studies, analyze the patient journey to identify intervention points. Focus on visit burden and digital endpoint acceptance",
   );
-  const { setAppGlobalData, appGlobalData } = useGlobalContext();
+  const { setAppGlobalData, appGlobalData, clearChatSession } =
+    useGlobalContext();
   const { addNewToast } = useAppToast();
   const [waitingForResponse, setWaitingForResponse] = useState(false);
 
   useEffect(() => {
-    initializeAIChat();
+    clearChatSession();
   }, []);
 
-  const initializeAIChat = () => {
-    setAppGlobalData((prevData: any) => ({
-      ...prevData,
-      currentChatDetails: [
-        getChatTextMsgPanel({
-          type: ChatMsgIOTypes.INCOMING,
-          message:
-            "Hello! I am your Clinical Development Assistant. How can I assist you today?",
-        }),
-      ],
-    }));
-  };
-
-  const saveMessagesViaAPI = (enteredData: any, userType: any) => {
+  const saveMessagesViaAPI = (enteredData: any, oChatSessionId: any) => {
     let configuredUrl =
       import.meta.env.VITE_CHAT_URL +
       "/" +
-      appGlobalData?.chatSessionDetails?.currChatId +
+      oChatSessionId +
       "/messages?user_id=" +
       localStorage.getItem("user_name");
 
-    api
-      .post(configuredUrl, { role: userType, content: enteredData })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.post(configuredUrl, enteredData).catch((error) => {
+      console.log(error);
+    });
   };
 
   async function customInvokeAgent(prompt: any, jwtToken: string) {
     // Your agent ARN
-
-    const arn = import.meta.env.VITE_API_CHAT_URL;
+    let arnSessionId = localStorage.getItem("arn_session_id")?.toString();
+    const arn = import.meta.env.VITE_AGENT_ARN;
 
     // Build the correct URL
     const url = `https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/${encodeURIComponent(
@@ -60,13 +50,19 @@ const getChatDetails = () => {
     const body = {
       prompt,
     };
+    console.log(
+      "appGlobalData?.chatSessionDetails?.currChatSessionId : " +
+        JSON.stringify(appGlobalData?.chatSessionDetails),
+    );
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwtToken}`,
+        "x-amzn-bedrock-agentcore-runtime-session-id": arnSessionId || "",
       },
+
       body: JSON.stringify(body),
     });
 
@@ -82,71 +78,122 @@ const getChatDetails = () => {
     return await response.json();
   }
 
-  const onUserChatEnter = async () => {
+  const checkForSessionIdAndProceed = async () => {
     setWaitingForResponse(true);
-
-    setAppGlobalData((prevData: any) => {
-      return {
-        ...prevData,
-        currentChatDetails: [
-          ...(prevData?.currentChatDetails || {}),
-          getChatTextMsgPanel({
-            type: ChatMsgIOTypes.OUTGOING,
-            message: enteredChat,
-          }),
-        ],
-      };
-    });
-
-    let promptRes: any = "";
-    try {
-      // promptRes = await getPromptResult(enteredChat, generateSessionId());
-      promptRes = await customInvokeAgent(
-        enteredChat,
-        localStorage.getItem("access_token") || "",
-      );
-
-      console.log("Agent Response:", promptRes);
-
-      setAppGlobalData((prevData: any) => ({
-        ...prevData,
-        chatSessionDetails: {
-          ...(prevData?.chatSessionDetails || {}),
-          lastQuestion: enteredChat,
-        },
-      }));
-
-      saveMessagesViaAPI(enteredChat, "user");
-      setTimeout(() => {
-        saveMessagesViaAPI(promptRes, "assistant");
-      }, 200);
-    } catch (error: any) {
-      console.log(error);
-      addNewToast({
-        type: "ERROR",
-        content: error.message || "Error occurred while fetching RCA",
-      });
-    }
-
     setAppGlobalData((prevData: any) => ({
       ...prevData,
       currentChatDetails: [
         ...(prevData?.currentChatDetails || {}),
-        transformResponseToChat(promptRes),
-        // transformResponseToChat(ApiChatTempData),
+        {
+          userType: UserTypes.USER,
+          content: {
+            type: ChatMsgIOTypes.OUTGOING,
+            message: enteredChat || "",
+          },
+        },
       ],
     }));
-    setTimeout(() => {
+
+    let newChatSessionId =
+      appGlobalData?.chatSessionDetails?.currChatId ||
+      "chat-" + getNewChatSessionId();
+
+    let arnSessionId = generateSessionId();
+
+    if (!appGlobalData?.chatSessionDetails?.currChatId) {
+      let newChatPayload = {
+        user_id: localStorage.getItem("user_name"),
+        session_id: newChatSessionId,
+        agent_id: "agent-chat",
+        title: "New Chat",
+      };
+
+      //this api is for creating session-ids
+      await api
+        .post(import.meta.env.VITE_CHAT_URL, newChatPayload)
+        .then((res) => {
+          localStorage.setItem("arn_session_id", arnSessionId);
+          setAppGlobalData((prevData: any) => ({
+            ...prevData,
+            userDetails: { userId: res?.data?.session?.user_id },
+            chatSessionDetails: {
+              currChatId: res?.data?.session?.session_id,
+              currChatSessionId: arnSessionId,
+            },
+          }));
+          setTimeout(() => {
+            onUserChatEnter(newChatSessionId);
+          }, 250);
+        });
+    } else {
+      onUserChatEnter(newChatSessionId);
+    }
+  };
+
+  const onUserChatEnter = async (newChatSessionId: any) => {
+    setWaitingForResponse(true);
+    let promptRes: any = "";
+
+    setAppGlobalData((prevData: any) => ({
+      ...prevData,
+      chatSessionDetails: {
+        ...prevData?.chatSessionDetails,
+        lastQuestion: enteredChat,
+      },
+    }));
+
+    setTimeout(async () => {
+      try {
+        promptRes = await customInvokeAgent(
+          enteredChat,
+          localStorage.getItem("access_token") || "",
+        );
+        setAppGlobalData((prevData: any) => ({
+          ...prevData,
+          currentChatDetails: [
+            ...(prevData?.currentChatDetails || {}),
+            {
+              userType: UserTypes.ASSISTANT,
+              content: {
+                message: promptRes || "",
+              },
+            },
+            // transformResponseToChat(ApiChatTempData),
+          ],
+        }));
+
+        saveMessagesViaAPI(
+          { role: "assistant", content: promptRes },
+          newChatSessionId,
+        );
+
+        setTimeout(() => {
+          saveMessagesViaAPI(
+            { role: "user", content: enteredChat },
+            newChatSessionId,
+          );
+        }, 250);
+      } catch (error: any) {
+        console.log(error);
+        addNewToast({
+          type: "ERROR",
+          content: error.message || "Error occurred while fetching RCA",
+        });
+      }
+
       setWaitingForResponse(false);
+    }, 100);
+
+    setTimeout(() => {
       setEnteredChat("");
-    }, 500);
+    }, 100);
   };
 
   return {
     appGlobalData,
     enteredChat,
     setEnteredChat,
-    onUserChatEnter,
+    checkForSessionIdAndProceed,
     waitingForResponse,
   };
 };

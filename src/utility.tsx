@@ -33,7 +33,7 @@ export const getNewChatSessionId = (idLength = 13) => {
   const id = Math.floor(min + Math.random() * (max - min + 1));
   return id.toString(); // store as string to avoid precision issues
 };
-export const generateSessionId = (length = 40) => {
+export const generateSessionId = (length = 34) => {
   const bytes = crypto.getRandomValues(new Uint8Array(length));
   const chars = "abcdefghijklmnopqrstuvwxyz";
   let result = "";
