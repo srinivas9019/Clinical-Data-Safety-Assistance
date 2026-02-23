@@ -14,7 +14,7 @@ import { generateSessionId } from "../utility";
 interface appGlobalDataState {
   chatSessionDetails: {
     currChatId: string;
-    currChatSessionId: string;
+    
     lastQuestion: string;
   };
   chatSessionList: any;
@@ -25,7 +25,7 @@ interface appGlobalDataState {
 const initialState: appGlobalDataState = {
   chatSessionDetails: {
     currChatId: "",
-    currChatSessionId: "",
+    
     lastQuestion: "",
   },
   chatSessionList: [],
@@ -79,8 +79,7 @@ const userSlice = createSlice({
     },
     clearChatSessionAtStore: (state) => {
       state.chatSessionDetails = {
-        currChatId: generateSessionId(),
-        currChatSessionId: "",
+        currChatId: "",
         lastQuestion: "",
       };
       state.currentChatDetails = [

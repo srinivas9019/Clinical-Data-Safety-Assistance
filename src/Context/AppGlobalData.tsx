@@ -84,7 +84,6 @@ export const AppGlobalDataProvider = ({
           loadChatFromHistory({
             chatSessionDetails: {
               currChatId: res?.data?.session?.session_id,
-              currChatSessionId: generateSessionId(),
               lastQuestion: res?.data?.session?.title,
             },
             currentChatDetails: resContent,
@@ -130,7 +129,6 @@ export const AppGlobalDataProvider = ({
             chatSessionDetails: {
               ...(prevData?.chatSessionDetails || {}),
               currChatId: "",
-              currChatSessionId: generateSessionId(),
               lastQuestion: "",
             },
           }));

@@ -89,28 +89,29 @@ const getChatDetails = () => {
     setTimeout(async () => {
       try {
         promptRes = await customInvokeAgent(enteredChat);
-        dispatch(
-          pushToCurrentChatDetails({
-            userType: UserTypes.ASSISTANT,
-            content: {
-              message: promptRes || "",
-            },
-          }),
-        );
-        console.log(promptRes?.runtimeSessionId);
-        dispatch(
-          updateChatSessionDetails({
-            currChatId: promptRes?.runtimeSessionId,
-            currChatSessionId: getNewChatSessionId(),
-            lastQuestion: enteredChat,
-          }),
-        );
+        if (promptRes?.runtimeSessionId?.length) {
+          dispatch(
+            pushToCurrentChatDetails({
+              userType: UserTypes.ASSISTANT,
+              content: {
+                message: promptRes || "",
+              },
+            }),
+          );
+          console.log(promptRes?.runtimeSessionId);
+          dispatch(
+            updateChatSessionDetails({
+              currChatId: promptRes?.runtimeSessionId,
+              lastQuestion: enteredChat,
+            }),
+          );
 
-        saveMessagesViaAPI({ role: "user", content: enteredChat });
-        saveMessagesViaAPI({ role: "assistant", content: promptRes });
-        setTimeout(() => {
-          loadChatHistory();
-        }, 500);
+          saveMessagesViaAPI({ role: "user", content: enteredChat });
+          saveMessagesViaAPI({ role: "assistant", content: promptRes });
+          setTimeout(() => {
+            loadChatHistory();
+          }, 500);
+        }
       } catch (error: any) {
         console.log(error);
         addNewToast({
