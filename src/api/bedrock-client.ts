@@ -6,12 +6,21 @@ import {
 } from "@aws-sdk/client-bedrock-agentcore"; // ES Modules import
 import { config } from "./config";
 
-export const getPromptResult = async (input_text: string, session_id: any) => {
+export const getPromptResult = async (input_text: string) => {
   const client = new BedrockAgentCoreClient(config);
 
+  const generateSessionId = (length = 34) => {
+    const bytes = crypto.getRandomValues(new Uint8Array(length));
+    const chars = "abcdefghijklmnopqrstuvwxyz";
+    let result = "";
+    for (let b of bytes) {
+      result += chars[b % chars.length];
+    }
+    return result;
+  };
   const input = {
-    runtimeSessionId: session_id, // Must be 33+ chars
-    agentRuntimeArn: import.meta.env.VITE_AGENT_ARN,
+    runtimeSessionId: generateSessionId(), // Must be 33+ chars
+    agentRuntimeArn: "arn:aws:bedrock-agentcore:us-east-1:969385807621:runtime/gtn_new_anomaly_detection_agent-Dc5J2lEPHa",
     payload: JSON.stringify({ prompt: input_text }), //new TextEncoder().encode(input_text), // e.g. Buffer.from(input_text) or new TextEncoder().encode(input_text)   // required
   };
 

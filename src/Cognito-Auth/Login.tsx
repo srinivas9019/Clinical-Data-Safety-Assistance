@@ -3,15 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { Button, Box } from "@cloudscape-design/components";
 import AWSLogo from "../assets/icons/aws-logo.svg";
-// import { useAppToast } from "../Context/AppGlobalToast";
-// import api from "../api";
-// import { appUrls } from "../api/config";
-// import { useGlobalContext } from "../Context/AppGlobalData";
 
 export default function Login() {
   const navigate = useNavigate();
-  // const { showPageLoader } = useAppToast();
-  // const { setAppGlobalData } = useGlobalContext();
+  
 
   const { user, signInWithSSO, isLoading } = useAuth();
   const [signingInWith, setSigningInWith] = useState<string | null>(null);
@@ -22,21 +17,6 @@ export default function Login() {
     }
   }, [user, navigate]);
 
-  // useEffect(() => {
-  //   showPageLoader({ status: true, title: "Loading Cognito Credentials..." });
-  //   api
-  //     .get(appUrls.COGNITO_CREDENTIALS)
-  //     .then((res) => {
-  //       showPageLoader({ status: false });
-  //       setAppGlobalData((prevData: any) => ({
-  //         ...prevData,
-  //         cognitoDetails: res.data || null,
-  //       }));
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, []);
 
   const handleSSOLogin = async () => {
     setSigningInWith("azure");

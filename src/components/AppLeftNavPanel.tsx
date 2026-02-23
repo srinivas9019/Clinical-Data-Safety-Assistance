@@ -10,35 +10,35 @@ import { useEffect, useState } from "react";
 
 import { PanelLoader } from "../utility";
 import { useGlobalContext } from "../Context/AppGlobalData";
-import {
-  ChatMsgIOTypes,
-  UserTypes,
-} from "../App-Interfaces/ChatRelatedInterfaces";
+import { type AppDispatch } from "../react-redux/chatStore";
+import { clearChatSessionAtStore } from "../react-redux/chatSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { type RootState } from "../react-redux/chatStore";
 
 const AppLeftNAvPanel = () => {
   const [value, setValue] = useState("");
-
+  const dispatch = useDispatch<AppDispatch>();
   const {
-    setAppGlobalData,
     appGlobalData,
     getChatFromHistory,
-    createNewChatSession,
     deleteChatFromHistory,
     loadChatHistory,
-    clearChatSession,
   } = useGlobalContext();
+
+  let sessionList = useSelector(
+    (state: RootState) => state.chatReducer.chatSessionList,
+  );
+
   const [historyListOpen, setHistoryListOpen] = useState(true);
 
-  useEffect(() => {
-    appGlobalData?.chatSessionDetails?.lastQuestion &&
-      createNewChatSession(appGlobalData?.chatSessionDetails?.lastQuestion);
-  }, [appGlobalData?.chatSessionDetails?.lastQuestion]);
+  // useEffect(() => {
+  //   appGlobalData?.chatSessionDetails?.lastQuestion &&
+  //     createNewChatSession(appGlobalData?.chatSessionDetails?.lastQuestion);
+  // }, [appGlobalData?.chatSessionDetails?.lastQuestion]);
 
   useEffect(() => {
     loadChatHistory();
   }, []);
-
-  useEffect(() => {}, [value]);
 
   return (
     <>
@@ -58,25 +58,7 @@ const AppLeftNAvPanel = () => {
                 variant="primary"
                 iconName="add-plus"
                 onClick={() => {
-                  setAppGlobalData((prevData: any) => ({
-                    ...prevData,
-                    chatSessionDetails: {
-                      currChatId: "",
-                      currChatSessionId: "",
-                      lastQuestion: "",
-                    },
-                    currentChatDetails: [
-                      {
-                        userType: UserTypes.USER,
-                        content: {
-                          type: ChatMsgIOTypes.INCOMING,
-                          message:
-                            "Hello! I am your Clinical Development Assistant. How can I assist you today?",
-                        },
-                      },
-                    ],
-                  }));
-                  clearChatSession();
+                  dispatch(clearChatSessionAtStore());
                 }}
               >
                 New Chat
@@ -110,8 +92,8 @@ const AppLeftNAvPanel = () => {
             </div>
             {historyListOpen ? (
               <div data-history-lest-container>
-                {appGlobalData?.chatSessionList?.length ? (
-                  appGlobalData?.chatSessionList
+                {sessionList?.length ? (
+                  sessionList
                     ?.filter((item: any) => {
                       return item?.title
                         ?.toLowerCase()

@@ -10,15 +10,14 @@ import LoadingBar from "@cloudscape-design/chat-components/loading-bar";
 
 import getChatDetails from "./useMainChatPage";
 import { transformStateIntoComponents } from "./chatComponents";
-
+import { useSelector } from "react-redux";
+import { type RootState } from "../../react-redux/chatStore";
 const MainChatPage = () => {
-  const {
-    appGlobalData,
-    enteredChat,
-    setEnteredChat,
-    checkForSessionIdAndProceed,
-    waitingForResponse,
-  } = getChatDetails();
+  const { enteredChat, setEnteredChat, onUserChatEnter, waitingForResponse } =
+    getChatDetails();
+  const currentChatDetails = useSelector(
+    (state: RootState) => state.chatReducer.currentChatDetails,
+  );
 
   return (
     <>
@@ -43,7 +42,7 @@ const MainChatPage = () => {
               onChange={({ detail }) => setEnteredChat(detail.value)}
               value={enteredChat}
               onAction={() => {
-                enteredChat?.length && checkForSessionIdAndProceed();
+                enteredChat?.length && onUserChatEnter();
               }}
               actionButtonAriaLabel="Send message"
               actionButtonIconName="send"
@@ -55,13 +54,11 @@ const MainChatPage = () => {
         >
           <SpaceBetween size="l">
             {/* {chatDetails.map((chatDetail: any, index: number) => ( */}
-            {appGlobalData?.currentChatDetails?.map(
-              (chatDetail: any, index: number) => (
-                <div key={index} data-chat-bubble-wrapper>
-                  {transformStateIntoComponents(chatDetail)}
-                </div>
-              ),
-            )}
+            {currentChatDetails?.map((chatDetail: any, index: number) => (
+              <div key={index} data-chat-bubble-wrapper>
+                {transformStateIntoComponents(chatDetail)}
+              </div>
+            ))}
             {waitingForResponse ? (
               <LiveRegion>
                 <Box

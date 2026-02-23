@@ -4,19 +4,24 @@ import { AppGlobalDataProvider } from "./Context/AppGlobalData";
 import { ToastProvider } from "./Context/AppGlobalToast";
 import "./components/PanelLoader/panelLoader.css";
 import { AuthProvider } from "./Cognito-Auth/AuthContext";
-
+// import { Provider } from "react-redux";
 import AppRoutes from "./appRoutes";
+import { Provider } from "react-redux";
+import { chatStore } from "./react-redux/chatStore";
+// import { chatStore } from "./react-redux/chatStore";
 function App() {
   return (
     <>
       <ToastProvider>
-        <AuthProvider>
-          <AppGlobalDataProvider>
-            <Router>
-              <AppRoutes />
-            </Router>
-          </AppGlobalDataProvider>
-        </AuthProvider>
+        <Provider store={chatStore}>
+          <AuthProvider>
+            <AppGlobalDataProvider>
+              <Router>
+                <AppRoutes />
+              </Router>
+            </AppGlobalDataProvider>
+          </AuthProvider>
+        </Provider>
       </ToastProvider>
     </>
   );

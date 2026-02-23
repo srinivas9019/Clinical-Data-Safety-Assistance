@@ -1,13 +1,14 @@
-import {
-  createContext,
-  useContext,
-  
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import api from "../api";
 import { generateSessionId, getNewChatSessionId } from "../utility";
 import { useAppToast } from "./AppGlobalToast";
+import {
+  updateChatSessionList,
+  loadChatFromHistory,
+} from "../react-redux/chatSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { type AppDispatch, type RootState } from "../react-redux/chatStore";
+import { chatHistoryListStored } from "../pages/MainChatPage/ApiResponse";
 
 import {
   ChatMsgIOTypes,
@@ -19,9 +20,8 @@ interface InterfaceAddToast {
   appGlobalData: any;
   getChatFromHistory: (data: any) => void;
   loadChatHistory: () => void;
-  createNewChatSession: (data?: any) => void;
+
   deleteChatFromHistory: (data: any) => void;
-  clearChatSession: () => void;
 }
 
 export const appGlobalDataContext = createContext<InterfaceAddToast | null>(
@@ -33,19 +33,11 @@ export const AppGlobalDataProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const { showPageLoader, addNewToast } = useAppToast();
   const [appGlobalData, setAppGlobalData] = useState<any>(null);
 
   const getChatFromHistory = (chatItem: any) => {
-    setAppGlobalData((prevData: any) => ({
-      ...prevData,
-      currentChatDetails: [],
-      chatSessionDetails: {
-        currChatId: chatItem?.session_id,
-        currChatSessionId: generateSessionId(),
-        lastQuestion: "",
-      },
-    }));
     showPageLoader({
       status: true,
       title: "Please Wait, Loading The Chat !!",
@@ -66,14 +58,6 @@ export const AppGlobalDataProvider = ({
           });
           return;
         }
-        setAppGlobalData((prevData: any) => ({
-          ...prevData,
-          chatSessionDetails: {
-            currChatId: res?.data?.session?.session_id,
-            currChatSessionId: generateSessionId(),
-            lastQuestion: res?.data?.session?.title,
-          },
-        }));
 
         let resContent: any = [];
 
@@ -96,10 +80,16 @@ export const AppGlobalDataProvider = ({
           }
         });
 
-        setAppGlobalData((prevData: any) => ({
-          ...prevData,
-          currentChatDetails: resContent,
-        }));
+        dispatch(
+          loadChatFromHistory({
+            chatSessionDetails: {
+              currChatId: res?.data?.session?.session_id,
+              currChatSessionId: generateSessionId(),
+              lastQuestion: res?.data?.session?.title,
+            },
+            currentChatDetails: resContent,
+          }),
+        );
       })
       .finally(() => {
         showPageLoader({
@@ -110,117 +100,20 @@ export const AppGlobalDataProvider = ({
       .catch(() => {});
   };
 
-  const createNewChatSession = async (updateChatTitle?: any) => {
-    let newChatPayload = {
-      user_id: localStorage.getItem("user_name"),
-      session_id: "chat-" + getNewChatSessionId(),
-      agent_id: "agent-chat",
-      title: "New Chat",
-    };
-    // if (!updateChatTitle?.length) {
-    //   showPageLoader({
-    //     status: true,
-    //     title: "Please Wait, Loading New Session !!",
-    //   });
-    // }
-    if (updateChatTitle?.length) {
-      newChatPayload = {
-        user_id: localStorage.getItem("user_name"),
-        session_id: appGlobalData?.chatSessionDetails?.currChatId,
-        agent_id: "agent-chat",
-        title: appGlobalData?.chatSessionDetails?.lastQuestion,
-      };
-    }
-
-    let checkIsNewSession = !updateChatTitle?.length
-      ? [
-          {
-            userType: UserTypes.USER,
-            content: {
-              type: ChatMsgIOTypes.INCOMING,
-              message:
-                "Hello! I am your Clinical Development Assistant. How can I assist you today?",
-            },
-          },
-        ]
-      : appGlobalData?.currentChatDetails;
- 
-    await api
-      .post(import.meta.env.VITE_CHAT_URL, newChatPayload)
-      .then((res) => {
-        setAppGlobalData((prevData: any) => ({
-          ...prevData,
-          userDetails: { userId: res?.data?.session?.user_id },
-          chatSessionDetails: {
-            currChatId: res?.data?.session?.session_id,
-            currChatSessionId: generateSessionId(),
-            lastQuestion: "",
-          },
-          currentChatDetails: checkIsNewSession,
-        }));
-        setTimeout(() => {
-          loadChatHistory();
-        }, 250);
-      })
-      .finally(() => {
-        showPageLoader({ status: false });
-      });
-  };
-
-  const clearChatSession = () => {
-    localStorage.removeItem("arn_session_id");
-    setAppGlobalData((prevData: any) => ({
-      ...prevData,
-      chatSessionDetails: {
-        currChatId: "",
-        currChatSessionId: "",
-        lastQuestion: "",
-      },
-      currentChatDetails: [
-        {
-          userType: UserTypes.USER,
-          content: {
-            type: ChatMsgIOTypes.INCOMING,
-            message:
-              "Hello! I am your Clinical Development Assistant. How can I assist you today?",
-          },
-        },
-      ],
-    }));
-  };
-
   const loadChatHistory = async () => {
-    api
+    await api
       .get(
         import.meta.env.VITE_CHAT_URL +
           "/?user_id=" +
           localStorage.getItem("user_name"),
       )
       .then((res) => {
-        setAppGlobalData((prevData: any) => ({
-          ...(prevData || {}),
-          chatSessionList: res?.data.sessions,
-          chatSessionLoading: false,
-        }));
-
-        // if (appGlobalData?.chatSessionDetails?.currChatId === "") {
-        //   setAppGlobalData((prevData: any) => ({
-        //     ...(prevData || {}),
-        //     chatSessionDetails: {
-        //       ...(prevData?.chatSessionDetails || {}),
-        //       currChatId: res?.data.sessions?.[0]?.session_id || "",
-        //       currChatSessionId: res?.data.sessions?.[0]?.session_id
-        //         ? generateSessionId()
-        //         : "",
-        //       lastQuestion: "",
-        //     },
-        //   }));
-        // }
+        dispatch(updateChatSessionList(res?.data.sessions));
       });
   };
 
-  const deleteChatFromHistory = (chatInfo: any) => {
-    api
+  const deleteChatFromHistory = async (chatInfo: any) => {
+    await api
       .delete(
         import.meta.env.VITE_CHAT_URL +
           "/" +
@@ -258,9 +151,7 @@ export const AppGlobalDataProvider = ({
         appGlobalData,
         getChatFromHistory,
         loadChatHistory,
-        createNewChatSession,
         deleteChatFromHistory,
-        clearChatSession,
       }}
     >
       {children}
