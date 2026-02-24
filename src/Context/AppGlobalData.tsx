@@ -1,14 +1,13 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext,  useState, type ReactNode } from "react";
 import api from "../api";
-import { generateSessionId, getNewChatSessionId } from "../utility";
+
 import { useAppToast } from "./AppGlobalToast";
 import {
   updateChatSessionList,
   loadChatFromHistory,
 } from "../react-redux/chatSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { type AppDispatch, type RootState } from "../react-redux/chatStore";
-import { chatHistoryListStored } from "../pages/MainChatPage/ApiResponse";
+import { useDispatch} from "react-redux";
+import { type AppDispatch } from "../react-redux/chatStore";
 
 import {
   ChatMsgIOTypes,

@@ -19,7 +19,6 @@ const AppLeftNAvPanel = () => {
   const [value, setValue] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const {
-    appGlobalData,
     getChatFromHistory,
     deleteChatFromHistory,
     loadChatHistory,
@@ -28,13 +27,17 @@ const AppLeftNAvPanel = () => {
   let sessionList = useSelector(
     (state: RootState) => state.chatReducer.chatSessionList,
   );
+  let isChatSessionLoading = useSelector(
+    (state: RootState) => state.chatReducer.chatSessionLoading,
+  );
+  let isChatSubmissionIsRunning = useSelector(
+    (state: RootState) => state.chatReducer.chatSubmissionIsRunning,
+  );
+  let currentChatSessionId = useSelector(
+    (state: RootState) => state.chatReducer.chatSessionDetails.currChatId,
+  );
 
   const [historyListOpen, setHistoryListOpen] = useState(true);
-
-  // useEffect(() => {
-  //   appGlobalData?.chatSessionDetails?.lastQuestion &&
-  //     createNewChatSession(appGlobalData?.chatSessionDetails?.lastQuestion);
-  // }, [appGlobalData?.chatSessionDetails?.lastQuestion]);
 
   useEffect(() => {
     loadChatHistory();
@@ -57,6 +60,7 @@ const AppLeftNAvPanel = () => {
                 iconAlign="left"
                 variant="primary"
                 iconName="add-plus"
+                disabled={isChatSessionLoading}
                 onClick={() => {
                   dispatch(clearChatSessionAtStore());
                 }}
@@ -72,7 +76,7 @@ const AppLeftNAvPanel = () => {
             </SpaceBetween>
           </div>
           <div data-app-left-nav-history-panel>
-            {appGlobalData?.chatSessionLoading ? <PanelLoader /> : <></>}
+            {isChatSessionLoading ? <PanelLoader /> : <></>}
             <div
               data-app-left-nav-panel-title-container
               onClick={() => {
@@ -105,8 +109,7 @@ const AppLeftNAvPanel = () => {
                           data-history-list-item
                           key={index}
                           data-history-list-item-active={
-                            appGlobalData?.chatSessionDetails?.currChatId ===
-                            item?.session_id
+                            currentChatSessionId === item?.session_id
                               ? true
                               : false
                           }
@@ -117,9 +120,13 @@ const AppLeftNAvPanel = () => {
                           <span
                             onClick={(event) => {
                               event.stopPropagation();
-                              deleteChatFromHistory(item);
+                              !isChatSubmissionIsRunning &&
+                                deleteChatFromHistory(item);
                             }}
                             data-chat-remove-icon
+                            data-chat-remove-btn-disabled={
+                              isChatSubmissionIsRunning
+                            }
                             title="Delete This Chat"
                           >
                             <Icon name="remove" />

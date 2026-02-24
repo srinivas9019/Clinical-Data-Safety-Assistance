@@ -180,3 +180,7 @@ html {
 [class*="awsui_top-navigation"] [class*="awsui_menu-item"] div{
   color: #fff !important;
 }
+[data-chat-remove-btn-disabled=true]{
+  opacity: 0.5 !important;
+  pointer-events: none;
+}

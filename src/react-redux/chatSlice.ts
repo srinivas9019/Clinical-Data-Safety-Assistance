@@ -1,35 +1,34 @@
 // store/userSlice.ts
 import {
-  createAsyncThunk,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import api from "../api";
+
 import {
   ChatMsgIOTypes,
   UserTypes,
 } from "../App-Interfaces/ChatRelatedInterfaces";
-import { generateSessionId } from "../utility";
+
 
 interface appGlobalDataState {
   chatSessionDetails: {
     currChatId: string;
-    
     lastQuestion: string;
   };
   chatSessionList: any;
   chatSessionLoading: boolean;
+  chatSubmissionIsRunning: boolean;
   currentChatDetails: any;
 }
 
 const initialState: appGlobalDataState = {
   chatSessionDetails: {
     currChatId: "",
-    
     lastQuestion: "",
   },
   chatSessionList: [],
   chatSessionLoading: false,
+  chatSubmissionIsRunning: false,
   currentChatDetails: [
     {
       userType: UserTypes.USER,
@@ -42,30 +41,21 @@ const initialState: appGlobalDataState = {
   ],
 };
 
-export const fetchUser = createAsyncThunk<any, number>(
-  "user/fetchUser",
-  async (userId, { rejectWithValue }) => {
-    try {
-      const response = await api.get<any>(
-        `https://jsonplaceholder.typicode.com/users/${userId}`,
-      );
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  },
-);
-
 const userSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
     updateChatSessionDetails: (state, action: PayloadAction<any>) => {
       state.chatSessionDetails = action.payload;
+
       console.log(state.chatSessionDetails);
     },
     updateChatSessionList: (state, action: PayloadAction<any>) => {
       state.chatSessionList = action.payload;
+    },
+    updateChatSubmissionRunningStatus: (state,action: PayloadAction<boolean>,) => {
+      console.log("hello 123",action.payload)
+      state.chatSubmissionIsRunning = action.payload;
     },
     updateChatSessionLoading: (state, action: PayloadAction<boolean>) => {
       state.chatSessionLoading = action.payload;
@@ -94,22 +84,6 @@ const userSlice = createSlice({
       ];
     },
   },
-  extraReducers: (builder) => {
-    builder
-
-      .addCase(fetchUser.pending, (state) => {
-        // state.loading = true;
-        // state.error = null;
-      })
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        // state.loading = false;
-        // state.data = action.payload;
-      })
-      .addCase(fetchUser.rejected, (state, action) => {
-        // state.loading = false;
-        // state.error = action.payload as string;
-      });
-  },
 });
 
 export const {
@@ -119,5 +93,6 @@ export const {
   loadChatFromHistory,
   clearChatSessionAtStore,
   pushToCurrentChatDetails,
+  updateChatSubmissionRunningStatus
 } = userSlice.actions;
 export default userSlice.reducer;

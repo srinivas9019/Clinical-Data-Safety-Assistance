@@ -6,7 +6,7 @@ import {
 
 import { useAppToast } from "../../Context/AppGlobalToast";
 import api from "../../api";
-import { getNewChatSessionId } from "../../utility";
+
 import { useSelector, useDispatch } from "react-redux";
 import { type AppDispatch, type RootState } from "../../react-redux/chatStore";
 import { chatStore } from "../../react-redux/chatStore";
@@ -14,6 +14,8 @@ import {
   clearChatSessionAtStore,
   pushToCurrentChatDetails,
   updateChatSessionDetails,
+  updateChatSessionLoading,
+  updateChatSubmissionRunningStatus,
 } from "../../react-redux/chatSlice";
 import { useGlobalContext } from "../../Context/AppGlobalData";
 
@@ -24,9 +26,7 @@ const getChatDetails = () => {
   let currSessionDetails = useSelector(
     (state: RootState) => state.chatReducer.chatSessionDetails,
   );
-  const [enteredChat, setEnteredChat] = useState<string>(
-    "For patients dropping out of our diabetes studies, analyze the patient journey to identify intervention points. Focus on visit burden and digital endpoint acceptance",
-  );
+  const [enteredChat, setEnteredChat] = useState<string>("");
 
   const { addNewToast } = useAppToast();
   const [waitingForResponse, setWaitingForResponse] = useState(false);
@@ -52,8 +52,7 @@ const getChatDetails = () => {
   async function customInvokeAgent(prompt: any) {
     try {
       const response = await api.post(
-        // "https://c2gu865khj.execute-api.us-east-1.amazonaws.com/cda-supervisor-invoke",
-        "https://bs4bulorvmwgr5w6o3edz2awfa0ppvzm.lambda-url.us-east-1.on.aws/",
+        import.meta.env.VITE_AGENT_ARN_SUBMIT_CHAT,
         {
           prompt,
           runtimeSessionId: currSessionDetails.currChatId || "",
@@ -70,6 +69,37 @@ const getChatDetails = () => {
       });
     }
   }
+
+  const updateChatSessionItem = async (sessionId: any, title: string) => {
+    dispatch(updateChatSessionLoading(true));
+    await api
+      .post(
+        import.meta.env.VITE_CHAT_URL,
+        {
+          session_id: sessionId,
+          agent_id: "agent-chat",
+          title: title,
+        },
+        {
+          params: {
+            user_id: localStorage.getItem("user_name"),
+          },
+        },
+      )
+      .then((res: any) => {
+        console.log(res);
+      })
+      .catch((error: any) => {
+        console.log(error);
+        addNewToast({
+          type: "ERROR",
+          content: error || "Error occurred while creating/updating session",
+        });
+      })
+      .finally(() => {
+        dispatch(updateChatSessionLoading(false));
+      });
+  };
 
   const onUserChatEnter = async () => {
     setWaitingForResponse(true);
@@ -88,7 +118,9 @@ const getChatDetails = () => {
 
     setTimeout(async () => {
       try {
+        dispatch(updateChatSubmissionRunningStatus(true));
         promptRes = await customInvokeAgent(enteredChat);
+        dispatch(updateChatSubmissionRunningStatus(false));
         if (promptRes?.runtimeSessionId?.length) {
           dispatch(
             pushToCurrentChatDetails({
@@ -98,18 +130,17 @@ const getChatDetails = () => {
               },
             }),
           );
-          console.log(promptRes?.runtimeSessionId);
           dispatch(
             updateChatSessionDetails({
               currChatId: promptRes?.runtimeSessionId,
               lastQuestion: enteredChat,
             }),
           );
-
-          saveMessagesViaAPI({ role: "user", content: enteredChat });
-          saveMessagesViaAPI({ role: "assistant", content: promptRes });
-          setTimeout(() => {
-            loadChatHistory();
+          await updateChatSessionItem(promptRes?.runtimeSessionId, enteredChat);
+          await saveMessagesViaAPI({ role: "user", content: enteredChat });
+          await saveMessagesViaAPI({ role: "assistant", content: promptRes });
+          setTimeout(async () => {
+            await loadChatHistory();
           }, 500);
         }
       } catch (error: any) {
